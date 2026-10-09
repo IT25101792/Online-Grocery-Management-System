@@ -4,23 +4,23 @@ public class paymenttype {
 
     private String cash;
     private String debitcards;
-    private String creditcards;
+    private String cashondelivery;
 
 
  paymenttype(String cash, String debitcards, String creditcards) {
      this.cash="cash";
      this.debitcards="debitcards";
-     this.creditcards="creditcards";
+     this.cashondelivery="creditcards";
  }
 
   void  setcash(String cash){
     this.cash=cash;
   }
-  void  setdebitcards(String debitcards){
+  void  cashondelivery(String debitcards){
      this.debitcards=debitcards;
   }
 
-  void  setcreditcards(String creditcards){
+  void  cashondelivery(String creditcards){
      this.creditcards=creditcards;
   }
 
@@ -32,7 +32,7 @@ public class paymenttype {
      return this.debitcards;
 
    }
-   public String getcreditcards(){
+   public String getcashondeliverycreditcards(){
      return this.creditcards;
    }
 
