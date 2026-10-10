@@ -10,11 +10,7 @@ public class StoreApplication {
 		SpringApplication.run(StoreApplication.class, args);
 
 
-        System.out.println("hello");}
-
-
-
-
+        System.out.println("http://localhost:8080/products");}
 
 
 }
