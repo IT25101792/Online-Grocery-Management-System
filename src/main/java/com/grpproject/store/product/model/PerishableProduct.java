@@ -5,10 +5,14 @@ import java.time.LocalDate;
 public class PerishableProduct extends Product {
     private LocalDate expiryDate;
 
-    public PerishableProduct(String id, String name, String category,
-                             double price, int stock, LocalDate expiryDate) {
-        super(id, name, category, price, stock);
+    public PerishableProduct(int productId, String name, String category, double price,
+                             int stockQty, int reorderLevel, LocalDate expiryDate) {
+        super(productId, name, category, price, stockQty, reorderLevel);
         this.expiryDate = expiryDate;
+    }
+
+    public boolean isExpired() {
+        return expiryDate.isBefore(LocalDate.now());
     }
 
     @Override
@@ -25,8 +29,8 @@ public class PerishableProduct extends Product {
 
     @Override
     public String toFileString() {
-        return "PERISHABLE|" + getId() + "|" + getName() + "|" + getCategory() + "|"
-                + getPrice() + "|" + getStock() + "|" + expiryDate;
+        return "PERISHABLE|" + getProductId() + "|" + getName() + "|" + getCategory() + "|"
+                + getPrice() + "|" + getStockQty() + "|" + getReorderLevel() + "|" + expiryDate;
     }
 
     public LocalDate getExpiryDate() { return expiryDate; }

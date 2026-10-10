@@ -7,18 +7,19 @@ import org.springframework.stereotype.Repository;
 
 import java.io.*;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-public class ProductFileRepository {
+public class ProductFileRepository implements ProductRepository {
 
-    private static final String FILE_PATH = "data/products.txt";
+    private final String filePath = "data/products.txt";
 
     // Creates the data folder and file if they don't exist yet
     public ProductFileRepository() {
         try {
-            File file = new File(FILE_PATH);
+            File file = new File(filePath);
             if (file.getParentFile() != null) {
                 file.getParentFile().mkdirs();
             }
@@ -28,20 +29,54 @@ public class ProductFileRepository {
         }
     }
 
-    // CREATE: add one line at the end of the file
-    public void save(Product product) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
-            writer.write(product.toFileString());
-            writer.newLine();
-        } catch (IOException e) {
-            throw new RuntimeException("Could not save product", e);
-        }
+    // CREATE
+    @Override
+    public void save(Product p) {
+        List<Product> all = readFromFile();
+        all.add(p);
+        writeToFile(all);
     }
 
-    // READ: all products
+    // READ one
+    @Override
+    public Product findById(int id) {
+        for (Product p : readFromFile()) {
+            if (p.getProductId() == id) return p;
+        }
+        return null;
+    }
+
+    // READ all
+    @Override
     public List<Product> findAll() {
+        return readFromFile();
+    }
+
+    // UPDATE: replace the product with the same ID
+    @Override
+    public void update(Product updated) {
+        List<Product> all = readFromFile();
+        for (int i = 0; i < all.size(); i++) {
+            if (all.get(i).getProductId() == updated.getProductId()) {
+                all.set(i, updated);
+                break;
+            }
+        }
+        writeToFile(all);
+    }
+
+    // DELETE
+    @Override
+    public void delete(int id) {
+        List<Product> all = readFromFile();
+        all.removeIf(p -> p.getProductId() == id);
+        writeToFile(all);
+    }
+
+    // Reads every line of the file and turns it into Product objects
+    private List<Product> readFromFile() {
         List<Product> products = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 if (line.isBlank()) continue;
@@ -54,53 +89,9 @@ public class ProductFileRepository {
         return products;
     }
 
-    // READ: one product by ID
-    public Product findById(String id) {
-        for (Product p : findAll()) {
-            if (p.getId().equals(id)) return p;
-        }
-        return null;
-    }
-
-    // READ: search by name or category
-    public List<Product> search(String keyword) {
-        List<Product> results = new ArrayList<>();
-        String key = keyword.toLowerCase();
-        for (Product p : findAll()) {
-            if (p.getName().toLowerCase().contains(key)
-                    || p.getCategory().toLowerCase().contains(key)) {
-                results.add(p);
-            }
-        }
-        return results;
-    }
-
-    // UPDATE: replace the product with the same ID
-    public boolean update(Product updated) {
-        List<Product> all = findAll();
-        boolean found = false;
-        for (int i = 0; i < all.size(); i++) {
-            if (all.get(i).getId().equals(updated.getId())) {
-                all.set(i, updated);
-                found = true;
-                break;
-            }
-        }
-        if (found) writeAll(all);
-        return found;
-    }
-
-    // DELETE: remove the product with this ID
-    public boolean delete(String id) {
-        List<Product> all = findAll();
-        boolean removed = all.removeIf(p -> p.getId().equals(id));
-        if (removed) writeAll(all);
-        return removed;
-    }
-
-    // Rewrites the whole file (used by update and delete)
-    private void writeAll(List<Product> products) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, false))) {
+    // Rewrites the whole file from the list
+    private void writeToFile(List<Product> products) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, false))) {
             for (Product p : products) {
                 writer.write(p.toFileString());
                 writer.newLine();
@@ -110,22 +101,29 @@ public class ProductFileRepository {
         }
     }
 
-    // Turns one line of the file back into a Product object
+    // One line: TYPE|productId|name|category|price|stockQty|reorderLevel|extra
     private Product parseLine(String line) {
         String[] parts = line.split("\\|");
-        if (parts.length < 7) return null;
+        if (parts.length < 8) return null;
 
-        String type = parts[0];
-        String id = parts[1];
-        String name = parts[2];
-        String category = parts[3];
-        double price = Double.parseDouble(parts[4]);
-        int stock = Integer.parseInt(parts[5]);
+        try {
+            String type = parts[0];
+            int productId = Integer.parseInt(parts[1]);
+            String name = parts[2];
+            String category = parts[3];
+            double price = Double.parseDouble(parts[4]);
+            int stockQty = Integer.parseInt(parts[5]);
+            int reorderLevel = Integer.parseInt(parts[6]);
 
-        if (type.equals("PERISHABLE")) {
-            return new PerishableProduct(id, name, category, price, stock, LocalDate.parse(parts[6]));
-        } else if (type.equals("NON_PERISHABLE")) {
-            return new NonPerishableProduct(id, name, category, price, stock, Integer.parseInt(parts[6]));
+            if (type.equals("PERISHABLE")) {
+                return new PerishableProduct(productId, name, category, price,
+                        stockQty, reorderLevel, LocalDate.parse(parts[7]));
+            } else if (type.equals("NON_PERISHABLE")) {
+                return new NonPerishableProduct(productId, name, category, price,
+                        stockQty, reorderLevel, parts[7]);
+            }
+        } catch (NumberFormatException | DateTimeParseException e) {
+            return null; // skip a damaged line instead of crashing
         }
         return null;
     }

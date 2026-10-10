@@ -34,7 +34,7 @@
             </thead>
             <tbody>
             <tr th:each="p : ${products}">
-                <td th:text="${p.id}"></td>
+                <td th:text="${p.productId}"></td>
                 <td th:text="${p.name}"></td>
                 <td th:text="${p.category}"></td>
                 <td>
@@ -51,13 +51,16 @@
                           th:text="${#numbers.formatDecimal(p.price, 1, 2)}"></span>
                 </td>
                 <td>
-                    <span th:text="${p.stock}"></span>
-                    <span th:if="${p.stock < 10}" class="badge bg-danger">Low</span>
+                    <span th:text="${p.stockQty}"></span>
+                    <span th:if="${p.lowStock}" class="badge bg-danger">Low</span>
                 </td>
-                <td th:text="${p.productType == 'PERISHABLE'} ? ${'Expires: ' + p.expiryDate} : ${'Shelf life: ' + p.shelfLifeMonths + ' months'}"></td>
                 <td>
-                    <a class="btn btn-sm btn-outline-primary" th:href="@{/products/edit/{id}(id=${p.id})}">Edit</a>
-                    <form class="d-inline" th:action="@{/products/delete/{id}(id=${p.id})}" method="post"
+                    <span th:text="${p.productType == 'PERISHABLE'} ? ${'Expires: ' + p.expiryDate} : ${'Packaging: ' + p.packagingType}"></span>
+                    <span th:if="${p.productType == 'PERISHABLE' and p.expired}" class="badge bg-dark">Expired</span>
+                </td>
+                <td>
+                    <a class="btn btn-sm btn-outline-primary" th:href="@{/products/edit/{id}(id=${p.productId})}">Edit</a>
+                    <form class="d-inline" th:action="@{/products/delete/{id}(id=${p.productId})}" method="post"
                           onsubmit="return confirm('Delete this product?');">
                         <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
                     </form>

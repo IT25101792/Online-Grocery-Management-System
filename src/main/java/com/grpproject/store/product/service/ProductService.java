@@ -3,137 +3,163 @@ package com.grpproject.store.product.service;
 import com.grpproject.store.product.model.NonPerishableProduct;
 import com.grpproject.store.product.model.PerishableProduct;
 import com.grpproject.store.product.model.Product;
-import com.grpproject.store.product.repository.ProductFileRepository;
+import com.grpproject.store.product.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class ProductService {
 
-    private final ProductFileRepository repository;
+    private final ProductRepository repo;
 
-    // Spring gives us the repository automatically (dependency injection)
-    public ProductService(ProductFileRepository repository) {
-        this.repository = repository;
-    }
-
-    // READ
-    public List<Product> getAllProducts() {
-        return repository.findAll();
-    }
-
-    public Product getProduct(String id) {
-        return repository.findById(id);
-    }
-
-    public List<Product> search(String keyword) {
-        if (keyword == null || keyword.isBlank()) {
-            return repository.findAll();
-        }
-        return repository.search(keyword.trim());
+    // Spring injects the repository for us (dependency injection)
+    public ProductService(ProductRepository repo) {
+        this.repo = repo;
     }
 
     // CREATE
-    public Product addProduct(String type, String name, String category, double price,
-                              int stock, LocalDate expiryDate, Integer shelfLifeMonths) {
-        validateCommon(name, category, price, stock);
-        String id = generateId();
-        Product product;
+    public void addProduct(Product p) {
+        validate(p, true);
+        p.setProductId(generateNextId());
+        repo.save(p);
+    }
 
-        if ("PERISHABLE".equals(type)) {
-            validateExpiry(expiryDate);
-            product = new PerishableProduct(id, name.trim(), category.trim(), price, stock, expiryDate);
-        } else if ("NON_PERISHABLE".equals(type)) {
-            validateShelfLife(shelfLifeMonths);
-            product = new NonPerishableProduct(id, name.trim(), category.trim(), price, stock, shelfLifeMonths);
-        } else {
-            throw new IllegalArgumentException("Please choose a product type");
+    // READ
+    public Product getProduct(int id) {
+        return repo.findById(id);
+    }
+
+    public List<Product> getAllProducts() {
+        return repo.findAll();
+    }
+
+    public List<Product> searchProducts(String keyword) {
+        if (keyword == null || keyword.isBlank()) {
+            return repo.findAll();
         }
-
-        repository.save(product);
-        return product;
+        String key = keyword.trim().toLowerCase();
+        List<Product> results = new ArrayList<>();
+        for (Product p : repo.findAll()) {
+            if (p.getName().toLowerCase().contains(key)
+                    || p.getCategory().toLowerCase().contains(key)) {
+                results.add(p);
+            }
+        }
+        return results;
     }
 
     // UPDATE
-    public void updateProduct(String id, String name, String category, double price,
-                              int stock, LocalDate expiryDate, Integer shelfLifeMonths) {
-        Product existing = repository.findById(id);
-        if (existing == null) {
-            throw new IllegalArgumentException("Product not found: " + id);
+    public void updateProduct(Product p) {
+        if (repo.findById(p.getProductId()) == null) {
+            throw new IllegalArgumentException("Product not found: " + p.getProductId());
         }
-        validateCommon(name, category, price, stock);
-
-        existing.setName(name.trim());
-        existing.setCategory(category.trim());
-        existing.setPrice(price);
-        existing.setStock(stock);
-
-        if (existing instanceof PerishableProduct perishable) {
-            validateExpiry(expiryDate);
-            perishable.setExpiryDate(expiryDate);
-        } else if (existing instanceof NonPerishableProduct nonPerishable) {
-            validateShelfLife(shelfLifeMonths);
-            nonPerishable.setShelfLifeMonths(shelfLifeMonths);
-        }
-
-        repository.update(existing);
+        validate(p, false);
+        repo.update(p);
     }
 
     // DELETE
-    public void deleteProduct(String id) {
-        if (!repository.delete(id)) {
+    public void deleteProduct(int id) {
+        if (repo.findById(id) == null) {
             throw new IllegalArgumentException("Product not found: " + id);
         }
+        repo.delete(id);
+    }
+
+    // Used by Cart / Order components when an order is placed
+    public void reduceStock(int id, int qty) {
+        if (qty <= 0) {
+            throw new IllegalArgumentException("Quantity must be greater than 0");
+        }
+        Product p = repo.findById(id);
+        if (p == null) {
+            throw new IllegalArgumentException("Product not found: " + id);
+        }
+        if (p.getStockQty() < qty) {
+            throw new IllegalArgumentException("Not enough stock for " + p.getName()
+                    + " (available: " + p.getStockQty() + ")");
+        }
+        p.setStockQty(p.getStockQty() - qty);
+        repo.update(p);
+    }
+
+    // Used when new stock arrives or an order is cancelled
+    public void restock(int id, int qty) {
+        if (qty <= 0) {
+            throw new IllegalArgumentException("Quantity must be greater than 0");
+        }
+        Product p = repo.findById(id);
+        if (p == null) {
+            throw new IllegalArgumentException("Product not found: " + id);
+        }
+        p.setStockQty(p.getStockQty() + qty);
+        repo.update(p);
+    }
+
+    public List<Product> getLowStockProducts() {
+        List<Product> low = new ArrayList<>();
+        for (Product p : repo.findAll()) {
+            if (p.isLowStock()) {
+                low.add(p);
+            }
+        }
+        return low;
     }
 
     // ---------- helpers ----------
 
-    // Makes IDs like P001, P002, P005 (one higher than the biggest existing)
-    private String generateId() {
+    // One higher than the biggest existing productId
+    private int generateNextId() {
         int max = 0;
-        for (Product p : repository.findAll()) {
-            try {
-                int number = Integer.parseInt(p.getId().substring(1));
-                if (number > max) max = number;
-            } catch (NumberFormatException ignored) {
-                // skip IDs that don't match the pattern
+        for (Product p : repo.findAll()) {
+            if (p.getProductId() > max) {
+                max = p.getProductId();
             }
         }
-        return String.format("P%03d", max + 1);
+        return max + 1;
     }
 
-    private void validateCommon(String name, String category, double price, int stock) {
-        if (name == null || name.isBlank()) {
+    private void validate(Product p, boolean isNew) {
+        if (p.getName() == null || p.getName().isBlank()) {
             throw new IllegalArgumentException("Product name is required");
         }
-        if (category == null || category.isBlank()) {
+        if (p.getCategory() == null || p.getCategory().isBlank()) {
             throw new IllegalArgumentException("Category is required");
         }
-        if (name.contains("|") || category.contains("|")) {
+        p.setName(p.getName().trim());
+        p.setCategory(p.getCategory().trim());
+
+        if (p.getName().contains("|") || p.getCategory().contains("|")) {
             throw new IllegalArgumentException("The '|' character is not allowed");
         }
-        if (price <= 0) {
+        if (p.getPrice() <= 0) {
             throw new IllegalArgumentException("Price must be greater than 0");
         }
-        if (stock < 0) {
+        if (p.getStockQty() < 0) {
             throw new IllegalArgumentException("Stock cannot be negative");
         }
-    }
-
-    private void validateExpiry(LocalDate expiryDate) {
-        if (expiryDate == null) {
-            throw new IllegalArgumentException("Expiry date is required for perishable products");
+        if (p.getReorderLevel() < 0) {
+            throw new IllegalArgumentException("Reorder level cannot be negative");
         }
-        if (expiryDate.isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("Expiry date cannot be in the past");
-        }
-    }
 
-    private void validateShelfLife(Integer months) {
-        if (months == null || months <= 0) {
-            throw new IllegalArgumentException("Shelf life (months) must be greater than 0");
+        if (p instanceof PerishableProduct perishable) {
+            if (perishable.getExpiryDate() == null) {
+                throw new IllegalArgumentException("Expiry date is required for perishable products");
+            }
+            if (isNew && perishable.getExpiryDate().isBefore(LocalDate.now())) {
+                throw new IllegalArgumentException("Expiry date cannot be in the past");
+            }
+        } else if (p instanceof NonPerishableProduct nonPerishable) {
+            String packaging = nonPerishable.getPackagingType();
+            if (packaging == null || packaging.isBlank()) {
+                throw new IllegalArgumentException("Packaging type is required");
+            }
+            if (packaging.contains("|")) {
+                throw new IllegalArgumentException("The '|' character is not allowed");
+            }
+            nonPerishable.setPackagingType(packaging.trim());
         }
     }
 }

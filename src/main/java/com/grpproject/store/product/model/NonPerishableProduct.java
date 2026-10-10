@@ -1,26 +1,26 @@
 package com.grpproject.store.product.model;
 
 public class NonPerishableProduct extends Product {
-    private int shelfLifeMonths;
+    private String packagingType;
 
-    public NonPerishableProduct(String id, String name, String category,
-                                double price, int stock, int shelfLifeMonths) {
-        super(id, name, category, price, stock);
-        this.shelfLifeMonths = shelfLifeMonths;
+    public NonPerishableProduct(int productId, String name, String category, double price,
+                                int stockQty, int reorderLevel, String packagingType) {
+        super(productId, name, category, price, stockQty, reorderLevel);
+        this.packagingType = packagingType;
     }
 
     @Override
-    public double getDiscountedPrice() { return getPrice(); }
+    public double getDiscountedPrice() { return getPrice(); } // no discount
 
     @Override
     public String getProductType() { return "NON_PERISHABLE"; }
 
     @Override
     public String toFileString() {
-        return "NON_PERISHABLE|" + getId() + "|" + getName() + "|" + getCategory() + "|"
-                + getPrice() + "|" + getStock() + "|" + shelfLifeMonths;
+        return "NON_PERISHABLE|" + getProductId() + "|" + getName() + "|" + getCategory() + "|"
+                + getPrice() + "|" + getStockQty() + "|" + getReorderLevel() + "|" + packagingType;
     }
 
-    public int getShelfLifeMonths() { return shelfLifeMonths; }
-    public void setShelfLifeMonths(int shelfLifeMonths) { this.shelfLifeMonths = shelfLifeMonths; }
+    public String getPackagingType() { return packagingType; }
+    public void setPackagingType(String packagingType) { this.packagingType = packagingType; }
 }
