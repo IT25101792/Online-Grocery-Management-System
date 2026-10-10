@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Checkout | FreshCart</title>
+
+    <link rel="stylesheet"
+          href="/css/style.css">
+
+</head>
+
+<body>
+
+
+<header class="main-header">
+
+    <div class="container header-container">
+
+
+        <a href="/"
+           class="brand">
+
+            <div class="brand-icon">
+                🛒
+            </div>
+
+            <div class="brand-text">
+
+                <span class="brand-name">
+                    FreshCart
+                </span>
+
+                <span class="brand-tagline">
+                    Fresh • Fast • Easy
+                </span>
+
+            </div>
+
+        </a>
+
+
+        <form
+                action="/"
+                class="header-search">
+
+            <span class="search-icon">
+                🔍
+            </span>
+
+            <input
+                    name="q"
+                    placeholder="Search products...">
+
+        </form>
+
+
+        <nav class="nav-links">
+
+            <a href="/"
+               class="nav-item">
+
+                🏠 Products
+
+            </a>
+
+
+            <a href="/orders"
+               class="nav-item">
+
+                📦 Orders
+
+            </a>
+
+
+            <a href="/cart"
+               class="cart-button">
+
+                🛒 Cart
+
+                <span
+                        class="cart-count"
+                        th:text="${cartCount}">
+
+                    0
+
+                </span>
+
+            </a>
+
+        </nav>
+
+    </div>
+
+</header>
+
+
+
+<section class="page-section">
+
+    <div class="container">
+
+
+        <div class="section-heading">
+
+            <span class="mini-heading">
+                ALMOST THERE
+            </span>
+
+            <h2>
+                Secure Checkout
+            </h2>
+
+            <p>
+                Complete your order details.
+            </p>
+
+        </div>
+
+
+
+        <form
+                action="/orders/create"
+                method="post">
+
+
+            <div class="checkout-grid">
+
+
+                <!-- LEFT -->
+
+                <div>
+
+
+                    <div class="panel checkout-panel">
+
+
+                        <div class="checkout-section-title">
+
+                            <span class="checkout-number">
+                                1
+                            </span>
+
+                            <div>
+
+                                <h2>
+                                    Customer Information
+                                </h2>
+
+                                <p>
+                                    Enter your details below.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Customer ID
+                            </label>
+
+                            <input
+                                    type="text"
+                                    name="customerId"
+                                    value="U001"
+                                    class="form-control"
+                                    required>
+
+                        </div>
+
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Full Name
+                            </label>
+
+                            <input
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="Enter your full name"
+                                    required>
+
+                        </div>
+
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Contact Number
+                            </label>
+
+                            <input
+                                    type="tel"
+                                    class="form-control"
+                                    placeholder="07X XXX XXXX">
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- DELIVERY -->
+
+                    <div class="panel checkout-panel">
+
+
+                        <div class="checkout-section-title">
+
+                            <span class="checkout-number">
+                                2
+                            </span>
+
+                            <div>
+
+                                <h2>
+                                    Delivery Details
+                                </h2>
+
+                                <p>
+                                    Where should we deliver?
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Delivery Address
+                            </label>
+
+                            <textarea
+                                    class="form-control form-textarea"
+                                    placeholder="Enter your full delivery address">
+                            </textarea>
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- PAYMENT -->
+
+                    <div class="panel checkout-panel">
+
+
+                        <div class="checkout-section-title">
+
+                            <span class="checkout-number">
+                                3
+                            </span>
+
+                            <div>
+
+                                <h2>
+                                    Payment Method
+                                </h2>
+
+                                <p>
+                                    Choose your preferred method.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <label class="payment-option">
+
+                            <input
+                                    type="radio"
+                                    name="paymentMethod"
+                                    value="COD"
+                                    checked>
+
+                            <span class="payment-icon">
+                                💵
+                            </span>
+
+                            <span>
+
+                                <strong>
+                                    Cash on Delivery
+                                </strong>
+
+                                <small>
+                                    Pay when your order arrives
+                                </small>
+
+                            </span>
+
+                        </label>
+
+
+
+                        <label class="payment-option">
+
+                            <input
+                                    type="radio"
+                                    name="paymentMethod"
+                                    value="CARD">
+
+                            <span class="payment-icon">
+                                💳
+                            </span>
+
+                            <span>
+
+                                <strong>
+                                    Card Payment
+                                </strong>
+
+                                <small>
+                                    Payment module integration
+                                </small>
+
+                            </span>
+
+                        </label>
+
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- RIGHT SUMMARY -->
+
+                <aside class="panel checkout-summary">
+
+
+                    <h2>
+                        Your Order
+                    </h2>
+
+
+                    <div
+                            class="checkout-item"
+                            th:each="item : ${cartItems}">
+
+
+                        <div>
+
+                            <strong
+                                    th:text="${item.productName}">
+
+                                Product
+
+                            </strong>
+
+                            <small>
+
+                                Qty:
+
+                                <span
+                                        th:text="${item.quantity}">
+
+                                    1
+
+                                </span>
+
+                            </small>
+
+                        </div>
+
+
+                        <strong>
+
+                            Rs.
+
+                            <span
+                                    th:text="${item.subtotal}">
+
+                                0
+
+                            </span>
+
+                        </strong>
+
+
+                    </div>
+
+
+
+                    <div class="summary-divider">
+                    </div>
+
+
+                    <div class="summary-row">
+
+                        <span>
+                            Delivery
+                        </span>
+
+                        <span class="free-text">
+                            FREE
+                        </span>
+
+                    </div>
+
+
+
+                    <div class="summary-total">
+
+                        <span>
+                            Total
+                        </span>
+
+                        <span>
+
+                            Rs.
+
+                            <span
+                                    th:text="${total}">
+
+                                0
+
+                            </span>
+
+                        </span>
+
+                    </div>
+
+
+
+                    <button
+                            type="submit"
+                            class="btn btn-primary btn-block place-order-button">
+
+                        ✓ Place Order
+
+                    </button>
+
+
+                    <div class="secure-note">
+
+                        🔒 Your checkout is secure
+
+                    </div>
+
+
+                </aside>
+
+
+            </div>
+
+
+        </form>
+
+
+    </div>
+
+</section>
+
+
+
+<footer class="main-footer">
+
+    <div class="footer-bottom">
+
+        © 2026 myMart
+
+    </div>
+
+</footer>
+
+
+<script src="/js/script.js"></script>
+
+</body>
+
+</html>
