@@ -46,11 +46,6 @@ public class CartOrderController {
     }
 
 
-    /* ==================================================
-       CART COUNT
-       AVAILABLE ON ALL PAGES
-    ================================================== */
-
     @ModelAttribute("cartCount")
     public int cartCount() {
 
@@ -63,10 +58,7 @@ public class CartOrderController {
                 .sum();
     }
 
-
-    /* ==================================================
-       PRODUCTS PAGE
-    ================================================== */
+    
 
     @GetMapping("/")
     public String products() {
@@ -75,9 +67,6 @@ public class CartOrderController {
     }
 
 
-    /* ==================================================
-       STOCK API
-    ================================================== */
 
     @GetMapping("/api/stock")
     @ResponseBody
@@ -88,10 +77,6 @@ public class CartOrderController {
                 .getAllStock();
     }
 
-
-    /* ==================================================
-       CART - READ
-    ================================================== */
 
     @GetMapping("/cart")
     public String cart(
@@ -114,9 +99,6 @@ public class CartOrderController {
     }
 
 
-    /* ==================================================
-       CART - CREATE
-    ================================================== */
 
     @PostMapping("/cart/add")
     public String addToCart(
@@ -146,10 +128,6 @@ public class CartOrderController {
     }
 
 
-    /* ==================================================
-       CART - UPDATE
-    ================================================== */
-
     @PostMapping("/cart/update")
     public String updateCart(
 
@@ -170,9 +148,6 @@ public class CartOrderController {
     }
 
 
-    /* ==================================================
-       CART - DELETE
-    ================================================== */
 
     @PostMapping("/cart/remove")
     public String removeCartItem(
@@ -189,9 +164,6 @@ public class CartOrderController {
     }
 
 
-    /* ==================================================
-       CHECKOUT
-    ================================================== */
 
     @GetMapping("/checkout")
     public String checkout(
@@ -224,9 +196,6 @@ public class CartOrderController {
     }
 
 
-    /* ==================================================
-       ORDER - CREATE
-    ================================================== */
 
     @PostMapping("/orders/create")
     public String createOrder(
@@ -243,10 +212,6 @@ public class CartOrderController {
     }
 
 
-    /* ==================================================
-       ORDER - READ
-    ================================================== */
-
     @GetMapping("/orders")
     public String orders(
             Model model
@@ -261,10 +226,6 @@ public class CartOrderController {
         return "orders";
     }
 
-
-    /* ==================================================
-       ORDER - UPDATE STATUS
-    ================================================== */
 
     @PostMapping(
             "/orders/{orderId}/status"
@@ -290,10 +251,6 @@ public class CartOrderController {
     }
 
 
-    /* ==================================================
-       ORDER - CANCEL
-    ================================================== */
-
     @PostMapping(
             "/orders/{orderId}/cancel"
     )
@@ -312,9 +269,7 @@ public class CartOrderController {
     }
 
 
-    /* ==================================================
-       ORDER - DELETE
-    ================================================== */
+
 
     @PostMapping(
             "/orders/{orderId}/delete"
