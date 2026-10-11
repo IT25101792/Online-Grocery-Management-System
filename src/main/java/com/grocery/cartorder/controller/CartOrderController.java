@@ -12,9 +12,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+
 @Controller
 public class CartOrderController {
 
+    // Services used to manage the cart, orders and product stock
     private final CartService
             cartService;
 
@@ -26,7 +28,7 @@ public class CartOrderController {
     private final ProductStockService
             productStockService;
 
-
+// Constructor to connect the required services
     public CartOrderController(
             CartService cartService,
             OrderService orderService,
@@ -45,7 +47,8 @@ public class CartOrderController {
                 productStockService;
     }
 
-
+  // Calculate the total number of items in the cart
+    // This count can be displayed on the pages
     @ModelAttribute("cartCount")
     public int cartCount() {
 
@@ -59,7 +62,7 @@ public class CartOrderController {
     }
 
     
-
+// Open the main products page
     @GetMapping("/")
     public String products() {
 
@@ -67,7 +70,7 @@ public class CartOrderController {
     }
 
 
-
+// Get the available stock of all products
     @GetMapping("/api/stock")
     @ResponseBody
     public Map<String, Integer>
@@ -77,7 +80,7 @@ public class CartOrderController {
                 .getAllStock();
     }
 
-
+ // Display the cart items and calculate the total price
     @GetMapping("/cart")
     public String cart(
             Model model
@@ -99,7 +102,7 @@ public class CartOrderController {
     }
 
 
-
+// Add a selected product to the shopping cart
     @PostMapping("/cart/add")
     public String addToCart(
 
@@ -127,7 +130,7 @@ public class CartOrderController {
         return "redirect:/cart";
     }
 
-
+ // Update the quantity of a product already in the cart
     @PostMapping("/cart/update")
     public String updateCart(
 
@@ -148,7 +151,7 @@ public class CartOrderController {
     }
 
 
-
+// Remove a selected item from the shopping cart
     @PostMapping("/cart/remove")
     public String removeCartItem(
 
@@ -164,12 +167,12 @@ public class CartOrderController {
     }
 
 
-
+    // Open the checkout page if the cart has items
     @GetMapping("/checkout")
     public String checkout(
             Model model
     ) {
-
+// Do not allow checkout when the cart is empty
         if (
                 cartService
                         .getCartItems()
@@ -179,7 +182,7 @@ public class CartOrderController {
             return "redirect:/cart";
         }
 
-
+// Pass cart details and total amount to the checkout page
         model.addAttribute(
                 "cartItems",
                 cartService.getCartItems()
@@ -196,7 +199,7 @@ public class CartOrderController {
     }
 
 
-
+ // Create a new order using the customer's ID
     @PostMapping("/orders/create")
     public String createOrder(
 
@@ -211,7 +214,7 @@ public class CartOrderController {
         return "redirect:/orders";
     }
 
-
+ // Display all orders on the orders page
     @GetMapping("/orders")
     public String orders(
             Model model
@@ -226,7 +229,7 @@ public class CartOrderController {
         return "orders";
     }
 
-
+   // Change the status of an existing order
     @PostMapping(
             "/orders/{orderId}/status"
     )
@@ -250,7 +253,7 @@ public class CartOrderController {
         return "redirect:/orders";
     }
 
-
+// Cancel an order using its order ID
     @PostMapping(
             "/orders/{orderId}/cancel"
     )
@@ -270,7 +273,7 @@ public class CartOrderController {
 
 
 
-
+// Delete an order from the system
     @PostMapping(
             "/orders/{orderId}/delete"
     )
