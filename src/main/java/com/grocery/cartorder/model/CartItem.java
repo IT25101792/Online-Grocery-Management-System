@@ -1,5 +1,6 @@
 package com.grocery.cartorder.model;
 
+// Details
 public class CartItem {
 
     private String cartItemId;
