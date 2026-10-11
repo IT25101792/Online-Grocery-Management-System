@@ -1,6 +1,4 @@
-/* ==================================================
-   PRODUCT INFORMATION
-================================================== */
+/*Product Infor*/
 
 const products = [
 
@@ -226,9 +224,7 @@ const products = [
 
 
 
-/* ==================================================
-   REAL STOCK FROM SPRING BOOT
-================================================== */
+/*Real stock from springboot*/
 
 let stockLevels = {};
 
@@ -285,9 +281,7 @@ async function loadStock() {
 
 
 
-/* ==================================================
-   PRODUCT IMAGE MAP
-================================================== */
+/*Product Image MAP*/
 
 const productImageMap = {};
 
@@ -305,9 +299,7 @@ products.forEach(
 
 
 
-/* ==================================================
-   HERO VIDEOS
-================================================== */
+/*Hero videos*/
 
 const videos = [
 
@@ -394,9 +386,7 @@ if (heroVideo) {
 
 
 
-/* ==================================================
-   CATEGORY INFORMATION
-================================================== */
+/*Category Information*/
 
 let activeCategory =
     "vegetables";
@@ -477,9 +467,7 @@ const categoryDescription =
 
 
 
-/* ==================================================
-   CREATE PRODUCT CARD
-================================================== */
+/*Create product Cart*/
 
 function createProductCard(
     product
@@ -742,9 +730,7 @@ function createProductCard(
 
 
 
-/* ==================================================
-   RENDER PRODUCTS
-================================================== */
+/*Render Product*/
 
 function renderProducts() {
 
@@ -877,9 +863,7 @@ function renderProducts() {
 
 
 
-/* ==================================================
-   CATEGORY BUTTONS
-================================================== */
+/*Category Button*/
 
 const categoryTabs =
     document.querySelectorAll(
@@ -938,9 +922,7 @@ categoryTabs.forEach(
 
 
 
-/* ==================================================
-   SEARCH
-================================================== */
+/*Search*/
 
 if (searchInput) {
 
@@ -973,9 +955,7 @@ if (searchInput) {
 
 
 
-/* ==================================================
-   QUANTITY BUTTONS
-================================================== */
+/*Quantity Button*/
 
 function setupQuantityControls() {
 
@@ -1101,9 +1081,7 @@ function setupQuantityControls() {
 
 
 
-/* ==================================================
-   ADD TO CART MESSAGE
-================================================== */
+/*Add to cart message*/
 
 function setupAddCartForms() {
 
@@ -1143,9 +1121,7 @@ function setupAddCartForms() {
 
 
 
-/* ==================================================
-   TOAST
-================================================== */
+/*TOAST*/
 
 function showToast(
     message
@@ -1222,9 +1198,7 @@ if (storedToast) {
 
 
 
-/* ==================================================
-   CART PRODUCT IMAGES
-================================================== */
+/*Cart product Image*/
 
 function setupCartImages() {
 
@@ -1260,9 +1234,7 @@ function setupCartImages() {
 
 
 
-/* ==================================================
-   CART MAXIMUM QUANTITY
-================================================== */
+/*Cart MAX quantity*/
 
 function setupCartMaximumQuantity() {
 
@@ -1324,9 +1296,7 @@ function setupCartMaximumQuantity() {
 
 
 
-/* ==================================================
-   ORDER PROGRESS
-================================================== */
+/*Order Progress*/
 
 const orderProgressElements =
     document.querySelectorAll(
@@ -1456,9 +1426,7 @@ orderProgressElements.forEach(
 
 
 
-/* ==================================================
-   CONFIRM REMOVE
-================================================== */
+/*Confirm Remove*/
 
 function confirmRemove() {
 
@@ -1469,9 +1437,7 @@ function confirmRemove() {
 
 
 
-/* ==================================================
-   CONFIRM DELETE
-================================================== */
+/*  Confirm Delete*/
 
 function confirmDelete() {
 
@@ -1482,9 +1448,7 @@ function confirmDelete() {
 
 
 
-/* ==================================================
-   START WEBSITE
-================================================== */
+/*Start Website*/
 
 loadStock();
 
