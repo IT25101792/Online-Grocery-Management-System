@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>My Orders | FreshCart</title>
+
+    <link rel="stylesheet"
+          href="/css/style.css">
+
+</head>
+
+<body>
+
+
+<header class="main-header">
+
+    <div class="container header-container">
+
+
+        <a href="/"
+           class="brand">
+
+            <div class="brand-icon">
+                🛒
+            </div>
+
+            <div class="brand-text">
+
+                <span class="brand-name">
+                    FreshCart
+                </span>
+
+                <span class="brand-tagline">
+                    Fresh • Fast • Easy
+                </span>
+
+            </div>
+
+        </a>
+
+
+        <form action="/"
+              class="header-search">
+
+            <span class="search-icon">
+                🔍
+            </span>
+
+            <input
+                    name="q"
+                    placeholder="Search products...">
+
+        </form>
+
+
+        <nav class="nav-links">
+
+            <a href="/"
+               class="nav-item">
+
+                🏠 Products
+
+            </a>
+
+
+            <a href="/orders"
+               class="nav-item">
+
+                📦 My Orders
+
+            </a>
+
+
+            <a href="/cart"
+               class="cart-button">
+
+                🛒 Cart
+
+                <span
+                        class="cart-count"
+                        th:text="${cartCount}">
+
+                    0
+
+                </span>
+
+            </a>
+
+        </nav>
+
+    </div>
+
+</header>
+
+
+
+<section class="page-section">
+
+    <div class="container">
+
+
+        <div class="section-heading">
+
+            <span class="mini-heading">
+                ORDER HISTORY
+            </span>
+
+            <h2>
+                My Orders
+            </h2>
+
+            <p>
+                Track and manage your grocery orders.
+            </p>
+
+        </div>
+
+
+
+        <!-- EMPTY -->
+
+        <div
+                th:if="${#lists.isEmpty(orders)}"
+                class="empty-state">
+
+            <div class="empty-icon">
+                📦
+            </div>
+
+            <h2>
+                No orders found
+            </h2>
+
+            <p>
+                Your new orders will appear here.
+            </p>
+
+            <a href="/"
+               class="btn btn-primary">
+
+                Shop Now
+
+            </a>
+
+        </div>
+
+
+
+        <!-- ORDERS -->
+
+        <div
+                class="order-card"
+                th:each="order : ${orders}">
+
+
+            <div class="order-header">
+
+
+                <div>
+
+                    <span class="order-label">
+                        ORDER
+                    </span>
+
+                    <div
+                            class="order-id"
+                            th:text="${order.orderId}">
+
+                        ORD-123
+
+                    </div>
+
+                    <div
+                            class="order-date"
+                            th:text="${order.orderDate}">
+
+                        Date
+
+                    </div>
+
+                </div>
+
+
+                <span
+                        class="status"
+                        th:classappend="' status-' + ${order.status}"
+                        th:text="${order.status}">
+
+                    PENDING
+
+                </span>
+
+
+            </div>
+
+
+
+            <div class="order-body">
+
+
+                <!-- PROGRESS -->
+
+                <div
+                        class="order-progress"
+                        th:attr="data-status=${order.status}">
+
+                </div>
+
+
+
+                <!-- INFORMATION -->
+
+                <div class="order-meta">
+
+
+                    <div class="meta-box">
+
+                        <div class="meta-label">
+                            CUSTOMER
+                        </div>
+
+                        <div
+                                class="meta-value"
+                                th:text="${order.customerId}">
+
+                            U001
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="meta-box">
+
+                        <div class="meta-label">
+                            ITEMS
+                        </div>
+
+                        <div class="meta-value">
+
+                            <span
+                                    th:text="${#lists.size(order.items)}">
+                            </span>
+
+                            Products
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="meta-box">
+
+                        <div class="meta-label">
+                            TOTAL
+                        </div>
+
+                        <div class="meta-value order-total">
+
+                            Rs.
+
+                            <span
+                                    th:text="${order.totalAmount}">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <h3 class="items-heading">
+                    Order Items
+                </h3>
+
+
+
+                <div
+                        class="order-product"
+                        th:each="item : ${order.items}">
+
+
+                    <div>
+
+                        <strong
+                                th:text="${item.productName}">
+
+                            Product
+
+                        </strong>
+
+
+                        <small>
+
+                            Quantity:
+
+                            <span
+                                    th:text="${item.quantity}">
+
+                                1
+
+                            </span>
+
+                        </small>
+
+                    </div>
+
+
+                    <strong>
+
+                        Rs.
+
+                        <span
+                                th:text="${item.subtotal}">
+
+                            0
+
+                        </span>
+
+                    </strong>
+
+
+                </div>
+
+
+
+                <div class="order-actions">
+
+
+                    <form
+                            th:action="@{/orders/{id}/status(id=${order.orderId})}"
+                            method="post">
+
+
+                        <select
+                                name="status"
+                                class="form-control status-select">
+
+
+                            <option
+                                    value="PENDING"
+                                    th:selected="${order.status == 'PENDING'}">
+
+                                Pending
+
+                            </option>
+
+
+                            <option
+                                    value="CONFIRMED"
+                                    th:selected="${order.status == 'CONFIRMED'}">
+
+                                Confirmed
+
+                            </option>
+
+
+                            <option
+                                    value="PROCESSING"
+                                    th:selected="${order.status == 'PROCESSING'}">
+
+                                Processing
+
+                            </option>
+
+
+                            <option
+                                    value="COMPLETED"
+                                    th:selected="${order.status == 'COMPLETED'}">
+
+                                Completed
+
+                            </option>
+
+
+                            <option
+                                    value="CANCELLED"
+                                    th:selected="${order.status == 'CANCELLED'}">
+
+                                Cancelled
+
+                            </option>
+
+
+                        </select>
+
+
+                        <button
+                                type="submit"
+                                class="btn btn-primary">
+
+                            Update Status
+
+                        </button>
+
+
+                    </form>
+
+
+
+                    <form
+                            th:action="@{/orders/{id}/cancel(id=${order.orderId})}"
+                            method="post">
+
+
+                        <button
+                                type="submit"
+                                class="btn btn-warning">
+
+                            Cancel Order
+
+                        </button>
+
+
+                    </form>
+
+
+
+                    <form
+                            th:action="@{/orders/{id}/delete(id=${order.orderId})}"
+                            method="post"
+                            onsubmit="return confirmDelete();">
+
+
+                        <button
+                                type="submit"
+                                class="btn btn-danger">
+
+                            Delete
+
+                        </button>
+
+
+                    </form>
+
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+</section>
+
+
+
+<footer class="main-footer">
+
+    <div class="footer-bottom">
+
+        © 2026 WD.29
+        • Online Grocery Order Management System
+
+    </div>
+
+</footer>
+
+
+<script src="/js/script.js"></script>
+
+</body>
+
+</html>

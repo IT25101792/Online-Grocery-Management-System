@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>myMart | Online Grocery Store</title>
+
+    <link rel="stylesheet"
+          href="/css/style.css">
+
+</head>
+
+<body>
+
+
+<!-- Header -->
+
+<header class="main-header">
+
+    <div class="container header-container">
+
+        <a href="/"
+           class="brand">
+
+            <div class="brand-icon">
+                🛒
+            </div>
+
+            <div class="brand-text">
+
+                <span class="brand-name">
+                    myMart
+                </span>
+
+                <span class="brand-tagline">
+                    Fresh • Fast • Easy
+                </span>
+
+            </div>
+
+        </a>
+
+
+        <!-- SEARCH -->
+
+        <form action="/"
+              method="get"
+              class="header-search">
+
+            <span class="search-icon">
+                🔍
+            </span>
+
+            <input
+                    id="searchInput"
+                    name="q"
+                    type="text"
+                    placeholder="Search milk, fruits, snacks...">
+
+        </form>
+
+
+        <!-- NAVIGATION -->
+
+        <nav class="nav-links">
+
+            <a href="/"
+               class="nav-item">
+
+                🏠 Products
+
+            </a>
+
+
+            <a href="/orders"
+               class="nav-item">
+
+                📦 My Orders
+
+            </a>
+
+
+            <a href="/cart"
+               class="cart-button">
+
+                🛒 Cart
+
+                <span
+                        class="cart-count"
+                        th:text="${cartCount}">
+
+                    0
+
+                </span>
+
+            </a>
+
+        </nav>
+
+    </div>
+
+</header>
+
+
+
+<!-- Video - Hero -->
+
+<section class="video-hero">
+
+    <video
+            id="heroVideo"
+            class="hero-video"
+            autoplay
+            muted
+            playsinline>
+    </video>
+
+
+    <div class="video-overlay"></div>
+
+
+    <div class="container hero-content">
+
+        <span class="hero-tag">
+
+            🌿 FRESH • FAST • EASY
+
+        </span>
+
+
+        <h1>
+
+            Fresh groceries,
+            delivered with ease.
+
+        </h1>
+
+
+        <p>
+
+            Shop fresh vegetables,
+            fruits, dairy products and
+            snacks from the comfort
+            of your home.
+
+        </p>
+
+
+        <a href="#products"
+           class="hero-button">
+
+            Shop Now →
+
+        </a>
+
+    </div>
+
+</section>
+
+
+
+<!-- Benefits -->
+
+<section class="benefits">
+
+    <div class="container benefits-grid">
+
+        <div class="benefit">
+
+            <span>
+                🌱
+            </span>
+
+            <div>
+
+                <strong>
+                    Fresh Products
+                </strong>
+
+                <small>
+                    Quality groceries
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="benefit">
+
+            <span>
+                ⚡
+            </span>
+
+            <div>
+
+                <strong>
+                    Easy Ordering
+                </strong>
+
+                <small>
+                    Simple checkout
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="benefit">
+
+            <span>
+                🔒
+            </span>
+
+            <div>
+
+                <strong>
+                    Secure Shopping
+                </strong>
+
+                <small>
+                    Safe ordering
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="benefit">
+
+            <span>
+                📦
+            </span>
+
+            <div>
+
+                <strong>
+                    Track Orders
+                </strong>
+
+                <small>
+                    Follow your status
+                </small>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!--Product -->
+
+<section
+        class="page-section"
+        id="products">
+
+    <div class="container">
+
+
+        <div class="section-heading">
+
+            <span class="mini-heading">
+                OUR PRODUCTS
+            </span>
+
+            <h2>
+                Shop by Category
+            </h2>
+
+            <p>
+                Find everything you need
+                for your daily grocery shopping.
+            </p>
+
+        </div>
+
+
+
+        <!-- CATEGORY TABS -->
+
+        <div class="category-tabs">
+
+
+            <button
+                    type="button"
+                    class="category-tab active"
+                    data-category="vegetables">
+
+                🥕 Vegetables
+
+            </button>
+
+
+            <button
+                    type="button"
+                    class="category-tab"
+                    data-category="fruits">
+
+                🍎 Fruits
+
+            </button>
+
+
+            <button
+                    type="button"
+                    class="category-tab"
+                    data-category="dairy">
+
+                🥛 Dairy
+
+            </button>
+
+
+            <button
+                    type="button"
+                    class="category-tab"
+                    data-category="snacks">
+
+                🍿 Snacks
+
+            </button>
+
+
+        </div>
+
+
+
+        <!-- CATEGORY TITLE -->
+
+        <div class="category-title">
+
+            <h2 id="categoryHeading">
+                Fresh Vegetables
+            </h2>
+
+            <p id="categoryDescription">
+                Healthy and fresh vegetables
+                for your daily meals.
+            </p>
+
+        </div>
+
+
+
+        <!-- JAVASCRIPT WILL CREATE PRODUCTS HERE -->
+
+        <div
+                class="products-grid"
+                id="productGrid">
+        </div>
+
+
+
+        <!-- NO SEARCH RESULT -->
+
+        <div
+                id="noProducts"
+                class="no-products">
+
+            <div>
+                🔍
+            </div>
+
+            <h3>
+                No products found
+            </h3>
+
+            <p>
+                Try searching for another product.
+            </p>
+
+        </div>
+
+
+    </div>
+
+</section>
+
+
+
+<!-- TOAST -->
+
+<div
+        id="toast"
+        class="toast">
+
+    <span class="toast-icon">
+        ✓
+    </span>
+
+    <span id="toastMessage">
+        Product added to cart
+    </span>
+
+</div>
+
+
+
+<!--FOOTER -->
+
+<footer class="main-footer">
+
+    <div class="container footer-grid">
+
+
+        <div>
+
+            <div class="footer-logo">
+
+                🛒 FreshCart
+
+            </div>
+
+            <p>
+
+                Fresh groceries made
+                simple, fast and convenient.
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h4>
+                Quick Links
+            </h4>
+
+            <a href="/">
+                Products
+            </a>
+
+            <a href="/cart">
+                My Cart
+            </a>
+
+            <a href="/orders">
+                My Orders
+            </a>
+
+        </div>
+
+
+        <div>
+
+            <h4>
+                Categories
+            </h4>
+
+            <span>
+                Vegetables
+            </span>
+
+            <span>
+                Fruits
+            </span>
+
+            <span>
+                Dairy
+            </span>
+
+            <span>
+                Snacks
+            </span>
+
+        </div>
+
+
+        <div>
+
+            <h4>
+                Contact
+            </h4>
+
+            <span>
+                📧 mymart@email.com
+            </span>
+
+            <span>
+                📞 +94 77 075 0601
+            </span>
+
+        </div>
+
+
+    </div>
+
+
+    <div class="footer-bottom">
+
+        © 2026 WD.29
+        • Online Grocery Order Management System
+
+    </div>
+
+</footer>
+
+
+
+<script src="/js/script.js"></script>
+
+</body>
+
+</html>
