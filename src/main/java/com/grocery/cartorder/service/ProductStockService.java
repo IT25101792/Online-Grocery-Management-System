@@ -23,9 +23,7 @@ public class ProductStockService {
     }
 
 
-    /* ==================================================
-       CREATE STOCK FILE
-    ================================================== */
+    //Create Stock file
 
     private void initializeStockFile() {
 
@@ -85,9 +83,7 @@ public class ProductStockService {
     }
 
 
-    /* ==================================================
-       READ STOCK FILE
-    ================================================== */
+    //Read Stock file
 
     private Map<String, Integer> readStock() {
 
@@ -149,9 +145,7 @@ public class ProductStockService {
     }
 
 
-    /* ==================================================
-       READ ALL STOCK
-    ================================================== */
+    //Read all stock
 
     public synchronized Map<String, Integer>
     getAllStock() {
@@ -160,9 +154,7 @@ public class ProductStockService {
     }
 
 
-    /* ==================================================
-       GET ONE PRODUCT STOCK
-    ================================================== */
+    //Get one stock
 
     public synchronized int getStock(
             String productId
@@ -179,9 +171,7 @@ public class ProductStockService {
     }
 
 
-    /* ==================================================
-       CHECK WHETHER ENOUGH STOCK EXISTS
-    ================================================== */
+    //Check wheher enough stock available
 
     public synchronized boolean hasEnoughStock(
             String productId,
@@ -198,9 +188,7 @@ public class ProductStockService {
     }
 
 
-    /* ==================================================
-       VALIDATE CART BEFORE ORDER
-    ================================================== */
+    //Validate cart before order
 
     public synchronized void validateOrderStock(
             List<CartItem> cartItems
@@ -246,9 +234,7 @@ public class ProductStockService {
     }
 
 
-    /* ==================================================
-       REDUCE STOCK AFTER PURCHASE
-    ================================================== */
+    //Reduce stock after purchase
 
     public synchronized void reduceStockForOrder(
             List<CartItem> cartItems
@@ -316,10 +302,7 @@ public class ProductStockService {
     }
 
 
-    /* ==================================================
-       RESTORE STOCK
-       Used if order saving fails.
-    ================================================== */
+    //RESTORE STOCK Used if order saving fails.
 
     public synchronized void restoreStockForOrder(
             List<CartItem> cartItems
@@ -352,9 +335,7 @@ public class ProductStockService {
     }
 
 
-    /* ==================================================
-       MANUALLY CHANGE STOCK
-    ================================================== */
+    //Manually change stock
 
     public synchronized void updateStock(
             String productId,
@@ -383,9 +364,7 @@ public class ProductStockService {
     }
 
 
-    /* ==================================================
-       SAVE STOCK
-    ================================================== */
+    //Save stock
 
     private void saveStock(
             Map<String, Integer> stock
