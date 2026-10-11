@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Order {
-
+//Atributes for Order 
     private String orderId;
     private String customerId;
     private List<OrderItem> items;
