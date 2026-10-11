@@ -48,11 +48,7 @@ public class OrderService {
         initializeFile();
     }
 
-
-    /* ==================================================
-       CREATE ORDER FILE
-    ================================================== */
-
+     // Create the orders file if it is not available
     private void initializeFile() {
 
         try {
@@ -80,10 +76,7 @@ public class OrderService {
     }
 
 
-    /* ==================================================
-       CREATE ORDER
-    ================================================== */
-
+    // Create an order from the items in the cart
     public synchronized Order createOrder(
             String customerId
     ) {
@@ -91,7 +84,7 @@ public class OrderService {
         List<CartItem> cartItems =
                 cartService.getCartItems();
 
-
+        // Check whether the cart is empty
         if (cartItems.isEmpty()) {
 
             throw new IllegalArgumentException(
@@ -100,27 +93,18 @@ public class OrderService {
         }
 
 
-        /*
-         * STEP 1
-         * CHECK STOCK
-         */
-
+        // Check whether the products have enough stock
         productStockService
                 .validateOrderStock(
                         cartItems
                 );
 
 
-        /*
-         * STEP 2
-         * CONVERT CART ITEMS
-         * TO ORDER ITEMS
-         */
-
+        // Move the cart item details into the order
         List<OrderItem> orderItems =
                 new ArrayList<>();
 
-
+        // Move the cart item details into the order
         for (CartItem cartItem : cartItems) {
 
             OrderItem orderItem =
@@ -142,11 +126,7 @@ public class OrderService {
         }
 
 
-        /*
-         * STEP 3
-         * CREATE ORDER ID
-         */
-
+        // Generate a new ID for the order
         String orderId =
                 "ORD-"
                         + UUID
@@ -155,20 +135,12 @@ public class OrderService {
                         .substring(0, 8);
 
 
-        /*
-         * STEP 4
-         * CALCULATE TOTAL
-         */
-
+        // Get the total amount from the cart
         double total =
                 cartService.calculateTotal();
 
 
-        /*
-         * STEP 5
-         * CREATE ORDER OBJECT
-         */
-
+        // Create the order with the current date and initial status
         Order order =
                 new Order(
 
@@ -186,24 +158,14 @@ public class OrderService {
                 );
 
 
-        /*
-         * STEP 6
-         * REDUCE STOCK
-         *
-         * This is the actual purchase.
-         */
-
+        // Reduce the purchased quantities from the stock
         productStockService
                 .reduceStockForOrder(
                         cartItems
                 );
 
 
-        /*
-         * STEP 7
-         * SAVE ORDER
-         */
-
+        // Save the order into the text file
         try {
 
             saveOrder(
@@ -213,11 +175,7 @@ public class OrderService {
         }
         catch (RuntimeException e) {
 
-            /*
-             * If saving order fails,
-             * return stock back.
-             */
-
+            // Give the stock back if the order cannot be saved
             productStockService
                     .restoreStockForOrder(
                             cartItems
@@ -228,11 +186,7 @@ public class OrderService {
         }
 
 
-        /*
-         * STEP 8
-         * CLEAR CART
-         */
-
+        // Empty the cart after placing the order
         cartService.clearCart();
 
 
@@ -240,11 +194,7 @@ public class OrderService {
     }
 
 
-    /* ==================================================
-       READ
-       GET ALL ORDERS
-    ================================================== */
-
+    //   Read all Orders
     public synchronized List<Order>
     getAllOrders() {
 
@@ -296,10 +246,7 @@ public class OrderService {
     }
 
 
-    /* ==================================================
-       READ
-       GET ORDER BY ID
-    ================================================== */
+    //Read get order by ID
 
     public Order getOrderById(
             String orderId
@@ -326,11 +273,7 @@ public class OrderService {
     }
 
 
-    /* ==================================================
-       UPDATE
-       ORDER STATUS
-    ================================================== */
-
+    //Update order status
     public synchronized void updateOrderStatus(
             String orderId,
             String newStatus
@@ -389,11 +332,7 @@ public class OrderService {
     }
 
 
-    /* ==================================================
-       UPDATE
-       CANCEL ORDER
-    ================================================== */
-
+    //Update cancel Order
     public void cancelOrder(
             String orderId
     ) {
@@ -405,11 +344,7 @@ public class OrderService {
     }
 
 
-    /* ==================================================
-       DELETE
-       DELETE ORDER
-    ================================================== */
-
+    //Delete Order
     public synchronized void deleteOrder(
             String orderId
     ) {
@@ -434,10 +369,7 @@ public class OrderService {
     }
 
 
-    /* ==================================================
-       SAVE ONE ORDER
-    ================================================== */
-
+    //Save one order
     private void saveOrder(
             Order order
     ) {
@@ -470,10 +402,7 @@ public class OrderService {
     }
 
 
-    /* ==================================================
-       SAVE ALL ORDERS
-    ================================================== */
-
+    //Save all orders
     private void saveAllOrders(
             List<Order> orders
     ) {
@@ -513,10 +442,7 @@ public class OrderService {
     }
 
 
-    /* ==================================================
-       CONVERT ORDER TO TEXT
-    ================================================== */
-
+    //Convert order to text
     private String convertOrderToLine(
             Order order
     ) {
@@ -593,10 +519,7 @@ public class OrderService {
     }
 
 
-    /* ==================================================
-       CONVERT TEXT TO ORDER
-    ================================================== */
-
+    //Convert Text to order
     private Order parseOrder(
             String line
     ) {
@@ -716,10 +639,7 @@ public class OrderService {
     }
 
 
-    /* ==================================================
-       SAFE TEXT
-    ================================================== */
-
+    //Safe text
     private String safe(
             String value
     ) {
