@@ -13,6 +13,7 @@ import java.util.UUID;
 @Service
 public class CartService {
 
+     // File used to store the shopping cart details
     private final Path cartFile =
             Paths.get(
                     "data",
@@ -23,7 +24,7 @@ public class CartService {
     private final ProductStockService
             productStockService;
 
-
+ // Connect the stock service and prepare the cart file
     public CartService(
             ProductStockService productStockService
     ) {
@@ -36,10 +37,7 @@ public class CartService {
     }
 
 
-    /* ==================================================
-       CREATE CART FILE
-    ================================================== */
-
+    // Create the data folder and cart file if they do not exist
     private void initializeFile() {
 
         try {
@@ -67,11 +65,7 @@ public class CartService {
     }
 
 
-    /* ==================================================
-       CREATE
-       ADD PRODUCT TO CART
-    ================================================== */
-
+  // Add a product to the shopping cart
     public synchronized void addToCart(
             String productId,
             String productName,
@@ -86,7 +80,7 @@ public class CartService {
             );
         }
 
-
+// Check whether the entered quantity and price are valid
         if (price < 0) {
 
             throw new IllegalArgumentException(
@@ -94,13 +88,13 @@ public class CartService {
             );
         }
 
-
+ 
         int availableStock =
                 productStockService.getStock(
                         productId
                 );
 
-
+ // Check how many items are available in stock
         if (availableStock <= 0) {
 
             throw new IllegalArgumentException(
@@ -115,13 +109,10 @@ public class CartService {
                 getCartItems();
 
 
-        /*
-         * CHECK WHETHER PRODUCT
-         * IS ALREADY IN CART
-         */
-
+     // If the product is already in the cart, update its quantity
         for (CartItem item : cartItems) {
 
+            // Do not allow adding more items than the available stock
             if (
                     item.getProductId()
                             .equals(productId)
@@ -153,6 +144,7 @@ public class CartService {
                 );
 
 
+                 // Save the updated cart
                 saveCart(
                         cartItems
                 );
@@ -213,11 +205,7 @@ public class CartService {
     }
 
 
-    /* ==================================================
-       READ
-       GET CART ITEMS
-    ================================================== */
-
+    // Read all cart items from the text file
     public synchronized List<CartItem>
     getCartItems() {
 
@@ -301,11 +289,7 @@ public class CartService {
     }
 
 
-    /* ==================================================
-       UPDATE
-       CHANGE QUANTITY
-    ================================================== */
-
+     // Update the quantity of an item in the cart
     public synchronized void updateQuantity(
             String cartItemId,
             int quantity
@@ -381,11 +365,7 @@ public class CartService {
     }
 
 
-    /* ==================================================
-       DELETE
-       REMOVE PRODUCT
-    ================================================== */
-
+     // Remove a selected product from the cart
     public synchronized void removeFromCart(
             String cartItemId
     ) {
@@ -410,10 +390,7 @@ public class CartService {
     }
 
 
-    /* ==================================================
-       CALCULATE TOTAL
-    ================================================== */
-
+    // Calculate the total price of all items in the cart
     public double calculateTotal() {
 
         double total = 0;
@@ -434,10 +411,7 @@ public class CartService {
     }
 
 
-    /* ==================================================
-       CLEAR CART
-    ================================================== */
-
+    // Empty the cart by saving an empty list
     public synchronized void clearCart() {
 
         saveCart(
@@ -446,10 +420,7 @@ public class CartService {
     }
 
 
-    /* ==================================================
-       SAVE CART
-    ================================================== */
-
+     // Save the current cart details into the text file
     private void saveCart(
             List<CartItem> cartItems
     ) {
@@ -506,10 +477,7 @@ public class CartService {
     }
 
 
-    /* ==================================================
-       SAFE TEXT
-    ================================================== */
-
+    // Replace the | symbol to avoid problems when reading the file
     private String safe(
             String value
     ) {
