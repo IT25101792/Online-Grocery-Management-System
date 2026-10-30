@@ -50,7 +50,11 @@ public abstract class User {
     }
 
     public boolean login(String password) {
-        return this.password.equals(password);
+        if (this.password.equals(password)){
+            return true;
+        }else{
+            return false;
+        }
     }
 
     public String toFileString() {
