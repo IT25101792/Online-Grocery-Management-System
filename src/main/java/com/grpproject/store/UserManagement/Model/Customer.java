@@ -7,6 +7,10 @@ public class Customer extends User {
     private String address;
     private String phone;
 
+    public Customer() {
+        super(0, "", "", "");
+    }
+
     public Customer(int userId, String name, String email,
                     String password, String address, String phone) {
         super(userId, name, email, password);

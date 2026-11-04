@@ -143,6 +143,7 @@ public class UserService {
                     "Email is already used by another user");
         }
 
+        customer.setPassword(existing.getPassword());
         repo.update(customer);
     }
 

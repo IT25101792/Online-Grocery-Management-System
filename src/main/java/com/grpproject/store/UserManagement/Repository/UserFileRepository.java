@@ -128,13 +128,18 @@ public class UserFileRepository implements UserRepository {
         return readFromFile();
     }
 
+
     @Override
     public void update(User updatedUser) {
         List<User> users = readFromFile();
 
         for (int i = 0; i < users.size(); i++) {
-            if (users.get(i).getUserId()
-                    == updatedUser.getUserId()) {
+
+            if (users.get(i).getUserId() == updatedUser.getUserId()) {
+
+                // Keep the existing password
+                updatedUser.setPassword(users.get(i).getPassword());
+
                 users.set(i, updatedUser);
                 writeToFile(users);
                 return;
