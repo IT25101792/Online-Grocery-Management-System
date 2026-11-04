@@ -1,6 +1,5 @@
 package com.grpproject.store.Delivery.Model;
 
-//encapsulating attributes to private
 public class Delivery {
     private String deliveryID;
     private String orderID;
@@ -9,15 +8,10 @@ public class Delivery {
     private String deliveryStatus;
     private double deliveryFee;
 
-    //initializing default constructor
-    public Delivery() {
+    public Delivery() {}
 
-    }
-
-    //Parameterized Constructor
-    public Delivery(String deliveryId, String orderID, String customerName, String deliveryAddress, String deliveryStatus, double deliveryFee) {
-
-        this.deliveryID = deliveryId;
+    public Delivery(String deliveryID, String orderID, String customerName, String deliveryAddress, String deliveryStatus, double deliveryFee) {
+        this.deliveryID = deliveryID;
         this.orderID = orderID;
         this.customerName = customerName;
         this.deliveryAddress = deliveryAddress;
@@ -25,22 +19,42 @@ public class Delivery {
         this.deliveryFee = deliveryFee;
     }
 
-    public String getdeliveryID(){
-        return getdeliveryID();
+    public String getDeliveryID() { return deliveryID; }
+    public void setDeliveryID(String deliveryID) { this.deliveryID = deliveryID; }
+
+    public String getOrderID() { return orderID; }
+    public void setOrderID(String orderID) { this.orderID = orderID; }
+
+    public String getCustomerName() { return customerName; }
+    public void setCustomerName(String customerName) { this.customerName = customerName; }
+
+    // FIXED: Returns field instead of calling getter recursively
+    public String getDeliveryAddress() { return deliveryAddress; }
+    public void setDeliveryAddress(String deliveryAddress) { this.deliveryAddress = deliveryAddress; }
+
+    public String getDeliveryStatus() { return deliveryStatus; }
+    public void setDeliveryStatus(String deliveryStatus) { this.deliveryStatus = deliveryStatus; }
+
+    public double getDeliveryFee() { return deliveryFee; }
+    // FIXED: Accepts double deliveryFee parameter
+    public void setDeliveryFee(double deliveryFee) { this.deliveryFee = deliveryFee; }
+
+    public String toFileString() {
+        return deliveryID + "," + orderID + "," + customerName + "," + deliveryAddress + "," + deliveryStatus + "," + deliveryFee;
     }
-    public void setDeliveryID(){
-        this.deliveryID = deliveryID;
-    }
-    public String getOrderID(){
-        return getOrderID();
-    }
-    public void setOrderID(){
-        this.orderID = orderID;
-    }
-    public String getCustomerName(){
-        return customerName;
-    }
-    public void setCustomerName(){
-        this.customerName = customerName;
+
+    public static Delivery fromFileString(String line) {
+        String[] parts = line.split(",");
+        if (parts.length == 6) {
+            return new Delivery(
+                    parts[0].trim(),
+                    parts[1].trim(),
+                    parts[2].trim(),
+                    parts[3].trim(),
+                    parts[4].trim(),
+                    Double.parseDouble(parts[5].trim())
+            );
+        }
+        return null;
     }
 }
