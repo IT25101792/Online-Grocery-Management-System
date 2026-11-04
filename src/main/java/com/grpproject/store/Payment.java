@@ -4,6 +4,8 @@ public class Payment {
     private String paymentId;
     private String orderId;
     private String customerName;
+    private String phone;
+    private String itemsSummary;
     private double amount;
     private paymenttype type;
     private paymentStatus status;
@@ -11,10 +13,12 @@ public class Payment {
 
     public Payment() {}
 
-    public Payment(String paymentId, String orderId, String customerName, double amount, paymenttype type, paymentStatus status, String date) {
+    public Payment(String paymentId, String orderId, String customerName, String phone, String itemsSummary, double amount, paymenttype type, paymentStatus status, String date) {
         this.paymentId = paymentId;
         this.orderId = orderId;
         this.customerName = customerName;
+        this.phone = phone;
+        this.itemsSummary = itemsSummary;
         this.amount = amount;
         this.type = type;
         this.status = status;
@@ -31,6 +35,12 @@ public class Payment {
     public String getCustomerName() { return customerName; }
     public void setCustomerName(String customerName) { this.customerName = customerName; }
 
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
+
+    public String getItemsSummary() { return itemsSummary; }
+    public void setItemsSummary(String itemsSummary) { this.itemsSummary = itemsSummary; }
+
     public double getAmount() { return amount; }
     public void setAmount(double amount) { this.amount = amount; }
 
@@ -43,23 +53,24 @@ public class Payment {
     public String getDate() { return date; }
     public void setDate(String date) { this.date = date; }
 
-    // Converts object into a single line of text for the text file
+    // Matches your UI standard: PaymentID,OrderId,CustomerName,Phone,ItemsSummary,Amount,Method,Status,Date
     public String toCSV() {
-        return paymentId + "," + orderId + "," + customerName + "," + amount + "," + type + "," + status + "," + date;
+        return paymentId + "," + orderId + "," + customerName + "," + phone + "," + itemsSummary + "," + amount + "," + type + "," + status + "," + date;
     }
 
-    // Reads a line of text from the file and converts it back into a Payment object
     public static Payment fromCSV(String csvLine) {
         String[] parts = csvLine.split(",");
-        if (parts.length < 7) return null;
+        if (parts.length < 9) return null;
         return new Payment(
                 parts[0].trim(),
                 parts[1].trim(),
                 parts[2].trim(),
-                Double.parseDouble(parts[3].trim()),
-                paymenttype.valueOf(parts[4].trim()),
-                paymentStatus.valueOf(parts[5].trim()),
-                parts[6].trim()
+                parts[3].trim(),
+                parts[4].trim(),
+                Double.parseDouble(parts[5].trim()),
+                paymenttype.valueOf(parts[6].trim()),
+                paymentStatus.valueOf(parts[7].trim()),
+                parts[8].trim()
         );
     }
 }

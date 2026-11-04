@@ -7,7 +7,7 @@ import java.util.List;
 
 @Repository
 public class PaymentFileRepository {
-    private final String FILE_PATH = "payments.txt";
+    private final String FILE_PATH = "data/payment.txt"; // Matches your data folder file name
 
     public PaymentFileRepository() {
         File file = new File(FILE_PATH);
@@ -20,7 +20,7 @@ public class PaymentFileRepository {
         }
     }
 
-    // CREATE: Save a new payment to the text file
+    // CREATE
     public synchronized void save(Payment payment) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
             writer.write(payment.toCSV());
@@ -30,7 +30,7 @@ public class PaymentFileRepository {
         }
     }
 
-    // READ: Get all payments from the text file
+    // READ ALL
     public synchronized List<Payment> findAll() {
         List<Payment> payments = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
@@ -47,7 +47,25 @@ public class PaymentFileRepository {
         return payments;
     }
 
-    // DELETE: Delete a payment by its ID from the text file
+    // UPDATE
+    public synchronized boolean update(String paymentId, Payment updatedPayment) {
+        List<Payment> payments = findAll();
+        boolean found = false;
+        for (int i = 0; i < payments.size(); i++) {
+            if (payments.get(i).getPaymentId().equalsIgnoreCase(paymentId)) {
+                updatedPayment.setPaymentId(paymentId);
+                payments.set(i, updatedPayment);
+                found = true;
+                break;
+            }
+        }
+        if (found) {
+            saveAll(payments);
+        }
+        return found;
+    }
+
+    // DELETE
     public synchronized boolean deleteById(String paymentId) {
         List<Payment> payments = findAll();
         boolean removed = payments.removeIf(p -> p.getPaymentId().equalsIgnoreCase(paymentId));

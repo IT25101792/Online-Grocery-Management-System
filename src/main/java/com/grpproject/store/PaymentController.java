@@ -35,4 +35,12 @@ public class PaymentController {
         return success ? ResponseEntity.ok("Payment deleted successfully.")
                 : ResponseEntity.notFound().build();
     }
+
+    // Endpoint to Update a Payment (PUT)
+    @PutMapping("/{id}")
+    public ResponseEntity<String> updatePayment(@PathVariable String id, @RequestBody Payment updated) {
+        boolean success = repository.update(id, updated);
+        return success ? ResponseEntity.ok("Payment updated successfully in text file.")
+                : ResponseEntity.notFound().build();
+    }
 }
