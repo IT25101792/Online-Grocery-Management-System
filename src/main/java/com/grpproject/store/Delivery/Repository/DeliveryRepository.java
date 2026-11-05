@@ -11,7 +11,7 @@ import java.util.List;
 public class DeliveryRepository {
 
     // Path to the text file where delivery data is saved
-    private static final String FILE_PATH = "deliveries.txt";
+    private static final String FILE_PATH = "src/data/deliveries.txt";
 
     // Append a new delivery record to the text file
     public boolean saveDelivery(Delivery delivery) {
