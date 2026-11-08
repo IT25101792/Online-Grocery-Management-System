@@ -1,46 +1,36 @@
 package com.grpproject.store;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
-@RestController
-@RequestMapping("/api/payments")
-@CrossOrigin(origins = "*")
+@Controller
 public class PaymentController {
 
-    private final PaymentFileRepository repository;
+    private final PaymentFileRepository paymentRepository;
 
-    public PaymentController(PaymentFileRepository repository) {
-        this.repository = repository;
+    public PaymentController(PaymentFileRepository paymentRepository) {
+        this.paymentRepository = paymentRepository;
     }
 
-    // Endpoint to Add a Payment (POST)
-    @PostMapping
-    public ResponseEntity<String> createPayment(@RequestBody Payment payment) {
-        repository.save(payment);
-        return ResponseEntity.ok("Payment saved successfully to text file!");
+    @GetMapping({"/", "/index", "/checkout"})
+    public String showCheckoutPage(Model model) {
+        model.addAttribute("paymentRecords", paymentRepository.findAll());
+        return "index";
     }
 
-    // Endpoint to View All Payments (GET)
-    @GetMapping
-    public List<Payment> getAllPayments() {
-        return repository.findAll();
+    @PostMapping("/payments/save")
+    public String savePaymentRecord(@ModelAttribute Payment payment) {
+        paymentRepository.save(payment);
+        return "redirect:/";
     }
 
-    // Endpoint to Delete a Payment (DELETE)
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deletePayment(@PathVariable String id) {
-        boolean success = repository.deleteById(id);
-        return success ? ResponseEntity.ok("Payment deleted successfully.")
-                : ResponseEntity.notFound().build();
-    }
-
-    // Endpoint to Update a Payment (PUT)
-    @PutMapping("/{id}")
-    public ResponseEntity<String> updatePayment(@PathVariable String id, @RequestBody Payment updated) {
-        boolean success = repository.update(id, updated);
-        return success ? ResponseEntity.ok("Payment updated successfully in text file.")
-                : ResponseEntity.notFound().build();
+    @GetMapping("/payments/delete")
+    public String deletePaymentRecord(@RequestParam("id") String paymentId) {
+        paymentRepository.deleteById(paymentId);
+        return "redirect:/";
     }
 }
