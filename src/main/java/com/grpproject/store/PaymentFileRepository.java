@@ -1,88 +1,121 @@
 package com.grpproject.store;
 
 import org.springframework.stereotype.Repository;
-import java.io.*;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
 @Repository
 public class PaymentFileRepository {
-    private final String FILE_PATH = "data/payment.txt"; // Matches your data folder file name
+
+    private final Path filePath = Paths.get("data", "payment.txt");
 
     public PaymentFileRepository() {
-        File file = new File(FILE_PATH);
         try {
-            if (!file.exists()) {
-                file.createNewFile();
+            Files.createDirectories(filePath.getParent());
+
+            if (Files.notExists(filePath)) {
+                Files.createFile(filePath);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Could not create payment.txt", e);
         }
     }
 
-    // CREATE
-    public synchronized void save(Payment payment) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
-            writer.write(payment.toCSV());
-            writer.newLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // READ ALL
     public synchronized List<Payment> findAll() {
         List<Payment> payments = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (!line.trim().isEmpty()) {
-                    Payment p = Payment.fromCSV(line);
-                    if (p != null) payments.add(p);
+
+        try {
+            for (String line : Files.readAllLines(filePath, StandardCharsets.UTF_8)) {
+                if (!line.isBlank()) {
+                    Payment payment = fromLine(line);
+                    if (payment != null) {
+                        payments.add(payment);
+                    }
                 }
             }
+            return payments;
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Could not read payment.txt", e);
         }
-        return payments;
     }
 
-    // UPDATE
-    public synchronized boolean update(String paymentId, Payment updatedPayment) {
+    public synchronized void save(Payment payment) {
         List<Payment> payments = findAll();
-        boolean found = false;
-        for (int i = 0; i < payments.size(); i++) {
-            if (payments.get(i).getPaymentId().equalsIgnoreCase(paymentId)) {
-                updatedPayment.setPaymentId(paymentId);
-                payments.set(i, updatedPayment);
-                found = true;
-                break;
-            }
-        }
-        if (found) {
-            saveAll(payments);
-        }
-        return found;
+
+        // Replace an existing record with the same payment ID.
+        payments.removeIf(existing ->
+                existing.getPaymentId() != null
+                        && existing.getPaymentId().equals(payment.getPaymentId()));
+
+        payments.add(payment);
+        writeAll(payments);
     }
 
-    // DELETE
-    public synchronized boolean deleteById(String paymentId) {
+    public synchronized void deleteById(String paymentId) {
         List<Payment> payments = findAll();
-        boolean removed = payments.removeIf(p -> p.getPaymentId().equalsIgnoreCase(paymentId));
-        if (removed) {
-            saveAll(payments);
-        }
-        return removed;
+        payments.removeIf(payment -> paymentId.equals(payment.getPaymentId()));
+        writeAll(payments);
     }
 
-    private void saveAll(List<Payment> payments) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, false))) {
-            for (Payment p : payments) {
-                writer.write(p.toCSV());
-                writer.newLine();
-            }
+    private void writeAll(List<Payment> payments) {
+        List<String> lines = new ArrayList<>();
+
+        for (Payment payment : payments) {
+            lines.add(toLine(payment));
+        }
+
+        try {
+            Files.write(
+                    filePath,
+                    lines,
+                    StandardCharsets.UTF_8,
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.TRUNCATE_EXISTING
+            );
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Could not write payment.txt", e);
         }
+    }
+
+    private String toLine(Payment payment) {
+        return formatField(payment.getPaymentId()) + "|"
+                + formatField(payment.getOrderId()) + "|"
+                + formatField(payment.getCustomerName()) + "|"
+                + formatField(payment.getPhoneNumber()) + "|"
+                + formatField(payment.getItems()) + "|"
+                + formatField(payment.getAmount()) + "|"
+                + formatField(payment.getPaymentMethod()) + "|"
+                + formatField(payment.getPaymentDate());
+    }
+
+    private Payment fromLine(String line) {
+        String[] fields = line.split("\\|", -1);
+
+        // Skip malformed or older-format lines.
+        if (fields.length != 8) {
+            return null;
+        }
+
+        Payment payment = new Payment();
+        payment.setPaymentId(fields[0]);
+        payment.setOrderId(fields[1]);
+        payment.setCustomerName(fields[2]);
+        payment.setPhoneNumber(fields[3]);
+        payment.setItems(fields[4]);
+        payment.setAmount(fields[5]);
+        payment.setPaymentMethod(fields[6]);
+        payment.setPaymentDate(fields[7]);
+        return payment;
+    }
+
+    private String formatField(String value) {
+        return value == null ? "" : value;
     }
 }
