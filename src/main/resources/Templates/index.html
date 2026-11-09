@@ -1,5 +1,7 @@
+
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -61,8 +63,7 @@
             gap: 8px;
         }
 
-        input,
-        select {
+        input, select {
             width: 100%;
             min-width: 0;
             padding: 9px;
@@ -102,8 +103,7 @@
             font-size: 11px;
         }
 
-        th,
-        td {
+        th, td {
             padding: 9px 7px;
             border-bottom: 1px solid #e5e9eb;
             text-align: left;
@@ -130,8 +130,7 @@
                 grid-template-columns: 1fr;
             }
 
-            .full-width,
-            button {
+            .full-width, button {
                 grid-column: auto;
             }
         }
@@ -139,6 +138,7 @@
 </head>
 
 <body>
+
 <div class="container">
 
     <header>
@@ -146,10 +146,15 @@
         <div class="subtitle">Payment &amp; Billing Module</div>
     </header>
 
+    <!-- Payment Form -->
     <section class="card">
+
         <h2>Add New Payment Record</h2>
 
-        <form class="form-grid" action="/payments/save" method="post">
+        <form class="form-grid"
+              th:action="@{/payments/save}"
+              method="post">
+
             <input
                     type="text"
                     name="paymentId"
@@ -177,55 +182,112 @@
                     class="full-width"
                     type="text"
                     name="items"
-                    placeholder="Items Summary (e.g. Milk, Rice, ...)">
+                    placeholder="Items Summary (e.g. Milk, Rice)">
 
             <input
                     type="number"
                     name="amount"
                     step="0.01"
                     min="0"
-                    placeholder="Amount ($)"
+                    placeholder="Amount (LKR)"
                     required>
 
-            <select name="paymentMethod" required>
+            <!-- Inheritance Payment Type -->
+            <select name="paymentType" required>
+
                 <option value="">Select Payment Method</option>
-                <option value="Cash on Delivery">Cash on Delivery</option>
-                <option value="Card">Card</option>
-                <option value="Online Banking">Online Banking</option>
+
+                <option value="CASH_ON_DELIVERY">
+                    Cash on Delivery
+                </option>
+
+                <option value="CARD">
+                    Card Payment
+                </option>
+
+                <option value="ONLINE_WALLET">
+                    Online Wallet
+                </option>
+
+                <option value="BANK_TRANSFER">
+                    Bank Transfer
+                </option>
+
             </select>
 
             <input
                     type="date"
                     name="paymentDate"
-                    aria-label="Payment date">
+                    aria-label="Payment date"
+                    required>
 
-            <button type="submit">Save Payment to File</button>
+            <button type="submit">
+                Save Payment to File
+            </button>
+
         </form>
+
     </section>
 
+    <!-- Payment Records Table -->
     <section class="card">
-        <h2>Stored Payment Records <span style="font-weight: normal;">(from payment.txt)</span></h2>
+
+        <h2>
+            Stored Payment Records
+            <span style="font-weight: normal;">
+                (from payment.txt)
+            </span>
+        </h2>
 
         <div class="table-wrap">
+
             <table>
+
                 <thead>
                 <tr>
                     <th>Payment ID</th>
+                    <th>Order ID</th>
                     <th>Customer</th>
                     <th>Phone</th>
                     <th>Amount</th>
-                    <th>Method</th>
+                    <th>Payment Type</th>
+                    <th>Date</th>
                     <th>Actions</th>
                 </tr>
                 </thead>
 
                 <tbody>
+
                 <tr th:each="payment : ${paymentRecords}">
-                    <td th:text="${payment.paymentId}">PAY-001</td>
-                    <td th:text="${payment.customerName}">Customer</td>
-                    <td th:text="${payment.phoneNumber}">Phone</td>
-                    <td th:text="${payment.amount}">0.00</td>
-                    <td th:text="${payment.paymentMethod}">Method</td>
+
+                    <td th:text="${payment.paymentId}">
+                        PAY-001
+                    </td>
+
+                    <td th:text="${payment.orderId}">
+                        ORD-001
+                    </td>
+
+                    <td th:text="${payment.customerName}">
+                        Customer
+                    </td>
+
+                    <td th:text="${payment.phoneNumber}">
+                        Phone
+                    </td>
+
+                    <td th:text="${payment.amount}">
+                        0.00
+                    </td>
+
+                    <td th:text="${payment.getClass().simpleName}">
+                        Payment Type
+                    </td>
+
+                    <td th:text="${payment.paymentDate}">
+                        Date
+                    </td>
+
                     <td>
                         <a class="delete-link"
                            th:href="@{/payments/delete(id=${payment.paymentId})}"
@@ -233,19 +295,26 @@
                             Delete
                         </a>
                     </td>
+
                 </tr>
 
                 <tr th:if="${#lists.isEmpty(paymentRecords)}">
-                    <td class="empty-message" colspan="6">
+
+                    <td class="empty-message" colspan="8">
                         No payment records yet.
                     </td>
+
                 </tr>
+
                 </tbody>
+
             </table>
+
         </div>
+
     </section>
 
 </div>
+
 </body>
 </html>
-
