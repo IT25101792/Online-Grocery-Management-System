@@ -1,14 +1,18 @@
 package com.grpproject.store.Delivery.Controller;
 
+import java.util.List;
+import java.util.ArrayList;
+
 import com.grpproject.store.Delivery.Model.Delivery;
 import com.grpproject.store.Delivery.Service.DeliveryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@RequestMapping("/admin/deliveries")
+@RequestMapping({"/admin/deliveries", "/admin/delivery"})
 public class DeliveryController {
 
     private final DeliveryService deliveryService;
@@ -18,23 +22,52 @@ public class DeliveryController {
         this.deliveryService = deliveryService;
     }
 
-    // Displays the Admin dashboard with all deliveries and update form
+    // 1. READ ALL: Displays Admin dashboard with safe list fallback
     @GetMapping
     public String showAdminDeliveryPage(Model model) {
-        model.addAttribute("deliveries", deliveryService.getAllDeliveries());
-        return "admin-delivery"; // Maps to admin-delivery.html in templates
+        List<Delivery> deliveries = deliveryService.getAllDeliveries();
+        model.addAttribute("deliveries", deliveries != null ? deliveries : new ArrayList<>());
+
+        if (!model.containsAttribute("newDelivery")) {
+            model.addAttribute("newDelivery", new Delivery());
+        }
+        return "admin-delivery";
     }
 
-    // Handles status update form submission
-    // Handles status update form submission
+    // 2. CREATE: Form submission for new delivery
+    @PostMapping("/add")
+    public String createDelivery(
+            @ModelAttribute("newDelivery") Delivery delivery,
+            RedirectAttributes redirectAttributes) {
+
+        boolean created = deliveryService.createDelivery(delivery);
+
+        if (created) {
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    "New delivery record created successfully!");
+        } else {
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    "Failed to create delivery. Delivery ID may already exist or is invalid.");
+        }
+
+        return "redirect:/admin/deliveries";
+    }
+
+    // 3. UPDATE: Status change submission
     @PostMapping("/update-status")
     public String updateDeliveryStatus(
-            @RequestParam("deliveryID") String deliveryID,
-            @RequestParam("deliveryStatus") String deliveryStatus,
-            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+            @RequestParam(value = "deliveryID", required = false) String deliveryID,
+            @RequestParam(value = "deliveryStatus", required = false) String deliveryStatus,
+            RedirectAttributes redirectAttributes) {
 
-        boolean updated = deliveryService.updateDeliveryStatus(
-                deliveryID, deliveryStatus);
+        if (deliveryID == null || deliveryStatus == null || deliveryID.trim().isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Invalid delivery ID or status provided.");
+            return "redirect:/admin/deliveries";
+        }
+
+        boolean updated = deliveryService.updateDeliveryStatus(deliveryID, deliveryStatus);
 
         if (updated) {
             redirectAttributes.addFlashAttribute(
@@ -44,6 +77,53 @@ public class DeliveryController {
             redirectAttributes.addFlashAttribute(
                     "errorMessage",
                     "Failed to update delivery status.");
+        }
+
+        return "redirect:/admin/deliveries";
+    }
+
+    // 4. UPDATE: Complete record edit submission
+    @PostMapping("/update")
+    public String updateDelivery(
+            @ModelAttribute Delivery delivery,
+            RedirectAttributes redirectAttributes) {
+
+        boolean updated = deliveryService.updateDelivery(delivery);
+
+        if (updated) {
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    "Delivery record updated successfully!");
+        } else {
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    "Failed to update delivery details.");
+        }
+
+        return "redirect:/admin/deliveries";
+    }
+
+    // 5. DELETE: Delivery record deletion
+    @PostMapping("/delete")
+    public String deleteDelivery(
+            @RequestParam(value = "deliveryID", required = false) String deliveryID,
+            RedirectAttributes redirectAttributes) {
+
+        if (deliveryID == null || deliveryID.trim().isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Invalid delivery ID provided for deletion.");
+            return "redirect:/admin/deliveries";
+        }
+
+        boolean deleted = deliveryService.deleteDelivery(deliveryID);
+
+        if (deleted) {
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    "Delivery record deleted successfully!");
+        } else {
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    "Failed to delete delivery record.");
         }
 
         return "redirect:/admin/deliveries";

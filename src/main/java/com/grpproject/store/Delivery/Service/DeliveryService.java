@@ -5,6 +5,7 @@ import com.grpproject.store.Delivery.Repository.DeliveryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -17,38 +18,89 @@ public class DeliveryService {
         this.deliveryRepository = deliveryRepository;
     }
 
-    // 1. Process and validate creating a new delivery
     public boolean createDelivery(Delivery delivery) {
-        if (delivery == null || delivery.getDeliveryID() == null || delivery.getDeliveryID().isEmpty()) {
-            return false; // Basic validation
+        if (delivery == null || delivery.getDeliveryID() == null || delivery.getDeliveryID().trim().isEmpty()) {
+            return false;
         }
+
+        String trimmedID = delivery.getDeliveryID().trim();
+        delivery.setDeliveryID(trimmedID);
+
+        if (deliveryRepository.getDeliveryById(trimmedID) != null) {
+            return false;
+        }
+
+        if (delivery.getDeliveryStatus() == null || delivery.getDeliveryStatus().trim().isEmpty()) {
+            delivery.setDeliveryStatus("Pending");
+        } else {
+            delivery.setDeliveryStatus(delivery.getDeliveryStatus().trim());
+        }
+
+        if (delivery.getDeliveryFee() < 0) {
+            delivery.setDeliveryFee(0.0);
+        }
+
         return deliveryRepository.saveDelivery(delivery);
     }
 
-    // 2. Retrieve all delivery records
     public List<Delivery> getAllDeliveries() {
-        return deliveryRepository.getAllDeliveries();
+        List<Delivery> deliveries = deliveryRepository.getAllDeliveries();
+        return deliveries != null ? deliveries : new ArrayList<>();
     }
 
-    // 3. Search for a delivery by ID
     public Delivery getDeliveryById(String deliveryID) {
         if (deliveryID == null || deliveryID.trim().isEmpty()) {
             return null;
         }
-        return deliveryRepository.getDeliveryById(deliveryID);
+        return deliveryRepository.getDeliveryById(deliveryID.trim());
     }
 
-    // 4. Update status with business logic validation
     public boolean updateDeliveryStatus(String deliveryID, String newStatus) {
-        if (deliveryID == null || newStatus == null || newStatus.trim().isEmpty()) {
+        if (deliveryID == null || newStatus == null || deliveryID.trim().isEmpty() || newStatus.trim().isEmpty()) {
             return false;
         }
 
-        Delivery existingDelivery = deliveryRepository.getDeliveryById(deliveryID);
+        String cleanID = deliveryID.trim();
+        String cleanStatus = newStatus.trim();
+
+        Delivery existingDelivery = deliveryRepository.getDeliveryById(cleanID);
         if (existingDelivery == null) {
             return false;
         }
 
-        return deliveryRepository.updateDeliveryStatus(deliveryID, newStatus);
+        return deliveryRepository.updateDeliveryStatus(cleanID, cleanStatus);
+    }
+
+    public boolean updateDelivery(Delivery delivery) {
+        if (delivery == null || delivery.getDeliveryID() == null || delivery.getDeliveryID().trim().isEmpty()) {
+            return false;
+        }
+
+        String cleanID = delivery.getDeliveryID().trim();
+        delivery.setDeliveryID(cleanID);
+
+        Delivery existingDelivery = deliveryRepository.getDeliveryById(cleanID);
+        if (existingDelivery == null) {
+            return false;
+        }
+
+        if (delivery.getDeliveryStatus() == null || delivery.getDeliveryStatus().trim().isEmpty()) {
+            delivery.setDeliveryStatus(existingDelivery.getDeliveryStatus());
+        } else {
+            delivery.setDeliveryStatus(delivery.getDeliveryStatus().trim());
+        }
+
+        if (delivery.getDeliveryFee() < 0) {
+            delivery.setDeliveryFee(existingDelivery.getDeliveryFee());
+        }
+
+        return deliveryRepository.updateDelivery(delivery);
+    }
+
+    public boolean deleteDelivery(String deliveryID) {
+        if (deliveryID == null || deliveryID.trim().isEmpty()) {
+            return false;
+        }
+        return deliveryRepository.deleteDelivery(deliveryID.trim());
     }
 }

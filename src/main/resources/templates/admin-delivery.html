@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 
@@ -170,433 +169,84 @@
 <!-- Navigation Bar -->
 <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top py-3">
     <div class="container">
-
         <a class="navbar-brand navbar-brand-custom d-flex align-items-center gap-2" href="#">
             <i class="fa-solid fa-cart-shopping text-success"></i>
             mymart
         </a>
-
         <span class="badge bg-light text-success border border-success-subtle px-3 py-2 rounded-pill">
             <i class="fa-solid fa-truck-fast me-1"></i>
             Delivery Management System
         </span>
-
     </div>
 </nav>
-
 
 <div class="container my-4">
 
     <!-- Success Message -->
-    <div th:if="${successMessage}"
-         class="alert alert-success alert-dismissible fade show"
-         role="alert">
-
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
         <i class="fa-solid fa-circle-check me-2"></i>
         <span th:text="${successMessage}"></span>
-
-        <button type="button"
-                class="btn-close"
-                data-bs-dismiss="alert"
-                aria-label="Close">
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 
     <!-- Error Message -->
-    <div th:if="${errorMessage}"
-         class="alert alert-danger alert-dismissible fade show"
-         role="alert">
-
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
         <i class="fa-solid fa-circle-exclamation me-2"></i>
         <span th:text="${errorMessage}"></span>
-
-        <button type="button"
-                class="btn-close"
-                data-bs-dismiss="alert"
-                aria-label="Close">
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-
 
     <!-- Dashboard Header -->
     <div class="header-bg mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
-
         <div>
             <h2 class="fw-bold mb-0">
                 <i class="fa-solid fa-boxes-packing me-2"></i>
                 Delivery Operations Dashboard
             </h2>
         </div>
-
-        <div>
-            <button class="btn btn-light text-success fw-bold px-4 py-2 shadow-sm"
-                    onclick="window.location.reload();">
-
-                <i class="fa-solid fa-rotate-right me-2"></i>
-                Refresh Data
-
+        <div class="d-flex gap-2">
+            <button class="btn btn-brand px-4 py-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#addDeliveryModal">
+                <i class="fa-solid fa-plus me-2"></i>Add New Delivery
+            </button>
+            <button class="btn btn-light text-success fw-bold px-4 py-2 shadow-sm" onclick="window.location.reload();">
+                <i class="fa-solid fa-rotate-right me-2"></i>Refresh
             </button>
         </div>
-
     </div>
-
 
     <!-- Dashboard Statistics -->
     <div class="row g-3 mb-4">
-
-        <!-- Total Deliveries -->
         <div class="col-6 col-md-3">
             <div class="card card-stat shadow-sm p-3 bg-white">
-
                 <div class="d-flex align-items-center justify-content-between">
-
                     <div>
-                        <div class="text-muted small fw-semibold text-uppercase">
-                            Total Deliveries
-                        </div>
-
-                        <div class="fs-4 fw-bold mt-1"
-                             th:text="${#lists.size(deliveries)}">
-                            0
-                        </div>
+                        <div class="text-muted small fw-semibold text-uppercase">Total Deliveries</div>
+                        <div class="fs-4 fw-bold mt-1" th:text="${deliveries != null ? deliveries.size() : 0}">0</div>
                     </div>
-
                     <div class="icon-box bg-light text-secondary">
                         <i class="fa-solid fa-receipt"></i>
                     </div>
-
                 </div>
             </div>
         </div>
 
-
-        <!-- Pending Deliveries -->
         <div class="col-6 col-md-3">
             <div class="card card-stat shadow-sm p-3 bg-white">
-
                 <div class="d-flex align-items-center justify-content-between">
-
                     <div>
-                        <div class="text-muted small fw-semibold text-uppercase">
-                            Pending
-                        </div>
-
-                        <div class="fs-4 fw-bold text-warning mt-1"
-                             th:text="${#lists.size(deliveries.?[deliveryStatus == 'PENDING'])}">
-                            0
-                        </div>
+                        <div class="text-muted small fw-semibold text-uppercase">Pending</div>
+                        <div class="fs-4 fw-bold text-warning mt-1" th:text="${deliveries != null ? #lists.size(deliveries.?[deliveryStatus != null and (deliveryStatus.equalsIgnoreCase('Pending') or deliveryStatus.equalsIgnoreCase('PENDING'))]) : 0}">0</div>
                     </div>
-
                     <div class="icon-box bg-warning-subtle text-warning">
                         <i class="fa-solid fa-clock"></i>
                     </div>
-
                 </div>
             </div>
         </div>
 
-
-        <!-- Out for Delivery -->
         <div class="col-6 col-md-3">
             <div class="card card-stat shadow-sm p-3 bg-white">
-
                 <div class="d-flex align-items-center justify-content-between">
-
                     <div>
-                        <div class="text-muted small fw-semibold text-uppercase">
-                            Out for Delivery
-                        </div>
-
-                        <div class="fs-4 fw-bold text-primary mt-1"
-                             th:text="${#lists.size(deliveries.?[deliveryStatus == 'OUT_FOR_DELIVERY'])}">
-                            0
-                        </div>
-                    </div>
-
-                    <div class="icon-box bg-primary-subtle text-primary">
-                        <i class="fa-solid fa-motorcycle"></i>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
-
-        <!-- Delivered -->
-        <div class="col-6 col-md-3">
-            <div class="card card-stat shadow-sm p-3 bg-white">
-
-                <div class="d-flex align-items-center justify-content-between">
-
-                    <div>
-                        <div class="text-muted small fw-semibold text-uppercase">
-                            Delivered
-                        </div>
-
-                        <div class="fs-4 fw-bold text-success mt-1"
-                             th:text="${#lists.size(deliveries.?[deliveryStatus == 'DELIVERED'])}">
-                            0
-                        </div>
-                    </div>
-
-                    <div class="icon-box bg-success-subtle text-success">
-                        <i class="fa-solid fa-circle-check"></i>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-
-    <!-- Deliveries Table -->
-    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
-
-        <!-- Table Header -->
-        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-
-            <h5 class="fw-bold mb-0">
-                <i class="fa-solid fa-list me-2 text-success"></i>
-                Active Delivery Queue
-            </h5>
-
-            <div class="search-box">
-
-                <input type="search"
-                       id="searchInput"
-                       class="form-control form-control-sm"
-                       placeholder="Search delivery, order, customer or address..."
-                       aria-label="Search deliveries"
-                       oninput="filterTable()">
-
-            </div>
-
-        </div>
-
-
-        <!-- Delivery Table -->
-        <div class="table-responsive">
-
-            <table class="table table-custom align-middle" id="deliveriesTable">
-
-                <thead>
-                <tr class="text-muted text-uppercase small">
-
-                    <th>Delivery ID</th>
-                    <th>Order ID</th>
-                    <th>Customer Name</th>
-                    <th>Delivery Address</th>
-                    <th style="min-width: 250px;">Status & Action</th>
-                    <th class="text-end">Delivery Fee (LKR)</th>
-
-                </tr>
-                </thead>
-
-
-                <tbody>
-
-                <!-- Display All Deliveries -->
-                <tr th:each="delivery : ${deliveries}">
-
-                    <!-- Delivery ID -->
-                    <td>
-                        <span class="fw-bold text-dark"
-                              th:text="${delivery.deliveryID}">
-                            DEL101
-                        </span>
-                    </td>
-
-
-                    <!-- Order ID -->
-                    <td>
-                        <span class="badge bg-light text-dark border"
-                              th:text="${delivery.orderID}">
-                            ORD001
-                        </span>
-                    </td>
-
-
-                    <!-- Customer Name -->
-                    <td class="fw-semibold text-secondary"
-                        th:text="${delivery.customerName}">
-                        John Doe
-                    </td>
-
-
-                    <!-- Delivery Address -->
-                    <td class="text-muted small"
-                        th:text="${delivery.deliveryAddress}">
-                        123 Main St Colombo
-                    </td>
-
-
-                    <!-- Status Update -->
-                    <td>
-
-                        <form th:action="@{/admin/deliveries/update-status}"
-                              method="post"
-                              class="d-flex align-items-center gap-2">
-
-                            <!-- Hidden Delivery ID -->
-                            <input type="hidden"
-                                   name="deliveryID"
-                                   th:value="${delivery.deliveryID}">
-
-
-                            <!-- Current Status Badge -->
-                            <span class="badge px-3 py-2 fw-bold text-uppercase"
-                                  th:text="${#strings.replace(delivery.deliveryStatus, '_', ' ')}"
-
-                                  th:classappend="${delivery.deliveryStatus == 'DELIVERED' ? 'badge-delivered' :
-                                  (delivery.deliveryStatus == 'PENDING' ? 'badge-pending' :
-                                  (delivery.deliveryStatus == 'DISPATCHED' ? 'badge-dispatched' :
-                                  (delivery.deliveryStatus == 'OUT_FOR_DELIVERY' ? 'badge-out_for_delivery' :
-                                  (delivery.deliveryStatus == 'CANCELLED' ? 'badge-cancelled' : ''))))}">
-
-                                PENDING
-                            </span>
-
-
-                            <!-- Status Dropdown -->
-                            <select name="deliveryStatus"
-                                    class="form-select form-select-sm form-select-sm-custom border-secondary-subtle"
-                                    aria-label="Update delivery status"
-                                    required
-                                    onchange="this.form.submit()">
-
-                                <option value="PENDING"
-                                        th:selected="${delivery.deliveryStatus == 'PENDING'}">
-                                    PENDING
-                                </option>
-
-                                <option value="DISPATCHED"
-                                        th:selected="${delivery.deliveryStatus == 'DISPATCHED'}">
-                                    DISPATCHED
-                                </option>
-
-                                <option value="OUT_FOR_DELIVERY"
-                                        th:selected="${delivery.deliveryStatus == 'OUT_FOR_DELIVERY'}">
-                                    OUT_FOR_DELIVERY
-                                </option>
-
-                                <option value="DELIVERED"
-                                        th:selected="${delivery.deliveryStatus == 'DELIVERED'}">
-                                    DELIVERED
-                                </option>
-
-                                <option value="CANCELLED"
-                                        th:selected="${delivery.deliveryStatus == 'CANCELLED'}">
-                                    CANCELLED
-                                </option>
-
-                            </select>
-
-                        </form>
-
-                    </td>
-
-
-                    <!-- Delivery Fee -->
-                    <td class="text-end fw-bold text-dark"
-                        th:text="${#numbers.formatDecimal(delivery.deliveryFee, 1, 2)}">
-
-                        250.00
-
-                    </td>
-
-                </tr>
-
-
-                <!-- Empty Delivery List -->
-                <tr th:if="${#lists.isEmpty(deliveries)}">
-
-                    <td colspan="6" class="text-center py-5 text-muted">
-
-                        <i class="fa-solid fa-box-open fa-2x mb-3 d-block"></i>
-
-                        <strong>No deliveries found</strong>
-
-                        <div class="small mt-1">
-                            Delivery records will appear here when they are created.
-                        </div>
-
-                    </td>
-
-                </tr>
-
-
-                <!-- No Search Results -->
-                <tr id="noSearchResults" style="display: none;">
-
-                    <td colspan="6" class="text-center py-4 text-muted">
-
-                        <i class="fa-solid fa-magnifying-glass fa-lg me-2"></i>
-
-                        No deliveries match your search.
-
-                    </td>
-
-                </tr>
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- Bootstrap JavaScript -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-
-<!-- Search and Filter Script -->
-<script>
-
-    function filterTable() {
-
-        const input = document.getElementById("searchInput");
-        const filter = input.value.trim().toLowerCase();
-
-        const table = document.getElementById("deliveriesTable");
-        const rows = table.querySelectorAll("tbody tr:not(#noSearchResults)");
-
-        const noResultsRow = document.getElementById("noSearchResults");
-
-        let visibleCount = 0;
-
-        rows.forEach((row) => {
-
-            // Ignore the empty-state row
-            if (row.querySelector("td[colspan]")) {
-                return;
-            }
-
-            const matches = row.textContent.toLowerCase().includes(filter);
-
-            row.style.display = matches ? "" : "none";
-
-            if (matches) {
-                visibleCount++;
-            }
-
-        });
-
-        // Show message when no matching deliveries exist
-        if (noResultsRow) {
-
-            noResultsRow.style.display =
-                filter !== "" && visibleCount === 0 ? "" : "none";
-
-        }
-
-    }
-
-</script>
-
-</body>
-</html>
+                        <div class="text-muted small fw-semibold text-uppercase">Out for Delivery</div>
+                        <div class="fs-4 fw-bold text-primary
