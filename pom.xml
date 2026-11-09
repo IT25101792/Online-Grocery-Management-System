@@ -6,8 +6,8 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.1.1</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<version>3.2.5</version>
+		<relativePath/>
 	</parent>
 
 	<groupId>com.grpproject</groupId>
@@ -17,20 +17,14 @@
 	<description>Store Application - Delivery Management Module</description>
 
 	<properties>
-		<java.version>25</java.version>
+		<java.version>21</java.version>
 	</properties>
 
 	<dependencies>
-		<!-- Core Spring Boot Starter -->
+		<!-- Core Web Starter -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter</artifactId>
-		</dependency>
-
-		<!-- Spring Boot Web MVC Starter -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-webmvc</artifactId>
+			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
 		<!-- Thymeleaf Template Engine -->
@@ -39,7 +33,7 @@
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 		</dependency>
 
-		<!-- Spring Boot Starter Test -->
+		<!-- Test Starter -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -55,5 +49,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>
