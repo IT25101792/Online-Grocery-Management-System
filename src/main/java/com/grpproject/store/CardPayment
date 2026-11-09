@@ -12,8 +12,4 @@ public class CardPayment extends Payment {
         this.cardNumber = cardNumber;
     }
 
-    @Override
-    public void processPayment() {
-        System.out.println("Processing card payment...");
-    }
 }
