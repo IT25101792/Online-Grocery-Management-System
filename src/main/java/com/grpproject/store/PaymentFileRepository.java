@@ -58,7 +58,6 @@ public class PaymentFileRepository {
             return payments;
 
         } catch (IOException e) {
-
             throw new RuntimeException(
                     "Could not read payment.txt", e);
         }
@@ -110,7 +109,6 @@ public class PaymentFileRepository {
             );
 
         } catch (IOException e) {
-
             throw new RuntimeException(
                     "Could not write payment.txt", e);
         }
@@ -162,7 +160,7 @@ public class PaymentFileRepository {
                 break;
 
             default:
-                payment = new Payment();
+                return null;
         }
 
         payment.setPaymentId(fields[0]);
