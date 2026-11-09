@@ -26,10 +26,26 @@ public class DeliveryController {
     }
 
     // Handles status update form submission
+    // Handles status update form submission
     @PostMapping("/update-status")
-    public String updateDeliveryStatus(@RequestParam("deliveryID") String deliveryID,
-                                       @RequestParam("deliveryStatus") String deliveryStatus) {
-        deliveryService.updateDeliveryStatus(deliveryID, deliveryStatus);
+    public String updateDeliveryStatus(
+            @RequestParam("deliveryID") String deliveryID,
+            @RequestParam("deliveryStatus") String deliveryStatus,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+
+        boolean updated = deliveryService.updateDeliveryStatus(
+                deliveryID, deliveryStatus);
+
+        if (updated) {
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    "Delivery status updated successfully!");
+        } else {
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    "Failed to update delivery status.");
+        }
+
         return "redirect:/admin/deliveries";
     }
 }
