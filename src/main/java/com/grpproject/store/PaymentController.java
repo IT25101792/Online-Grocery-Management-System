@@ -1,3 +1,4 @@
+
 package com.grpproject.store;
 
 import org.springframework.stereotype.Controller;
@@ -16,21 +17,71 @@ public class PaymentController {
         this.paymentRepository = paymentRepository;
     }
 
+    // Display checkout page
     @GetMapping({"/", "/index", "/checkout"})
     public String showCheckoutPage(Model model) {
-        model.addAttribute("paymentRecords", paymentRepository.findAll());
+
+        model.addAttribute("paymentRecords",
+                paymentRepository.findAll());
+
+        model.addAttribute("payment", new Payment());
+
         return "index";
     }
 
+    // Save payment
     @PostMapping("/payments/save")
-    public String savePaymentRecord(@ModelAttribute Payment payment) {
-        paymentRepository.save(payment);
+    public String savePaymentRecord(
+            @ModelAttribute Payment payment,
+            @RequestParam("paymentType") String type) {
+
+        Payment newPayment;
+
+        // Create the relevant child object
+        switch (type) {
+
+            case "CASH_ON_DELIVERY":
+                newPayment = new CashOnDelivery();
+                break;
+
+            case "CARD":
+                newPayment = new CardPayment();
+                break;
+
+            case "ONLINE_WALLET":
+                newPayment = new OnlineWallet();
+                break;
+
+            case "BANK_TRANSFER":
+                newPayment = new BankTransfer();
+                break;
+
+            default:
+                throw new IllegalArgumentException(
+                        "Invalid payment type");
+        }
+
+        // Copy common details from parent class
+        newPayment.setPaymentId(payment.getPaymentId());
+        newPayment.setOrderId(payment.getOrderId());
+        newPayment.setCustomerName(payment.getCustomerName());
+        newPayment.setPhoneNumber(payment.getPhoneNumber());
+        newPayment.setItems(payment.getItems());
+        newPayment.setAmount(payment.getAmount());
+        newPayment.setPaymentDate(payment.getPaymentDate());
+
+        paymentRepository.save(newPayment);
+
         return "redirect:/";
     }
 
+    // Delete payment
     @GetMapping("/payments/delete")
-    public String deletePaymentRecord(@RequestParam("id") String paymentId) {
+    public String deletePaymentRecord(
+            @RequestParam("id") String paymentId) {
+
         paymentRepository.deleteById(paymentId);
+
         return "redirect:/";
     }
 }
