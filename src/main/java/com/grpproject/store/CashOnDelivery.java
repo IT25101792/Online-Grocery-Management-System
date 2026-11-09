@@ -1,5 +1,8 @@
 package com.grpproject.store;
 
 public class CashOnDelivery extends Payment {
-    // Inherits all fields and getters/setters from Payment
+    public void processPayment() {
+        System.out.println("Payment will be collected upon delivery.");
+    }
+
 }
