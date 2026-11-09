@@ -1,4 +1,3 @@
-
 package com.grpproject.store;
 
 import org.springframework.stereotype.Controller;
@@ -37,31 +36,25 @@ public class PaymentController {
 
         Payment newPayment;
 
-        // Create the relevant child object
+        // Create the relevant child object based on inheritance
         switch (type) {
-
             case "CASH_ON_DELIVERY":
                 newPayment = new CashOnDelivery();
                 break;
-
             case "CARD":
                 newPayment = new CardPayment();
                 break;
-
             case "ONLINE_WALLET":
                 newPayment = new OnlineWallet();
                 break;
-
             case "BANK_TRANSFER":
                 newPayment = new BankTransfer();
                 break;
-
             default:
-                throw new IllegalArgumentException(
-                        "Invalid payment type");
+                throw new IllegalArgumentException("Invalid payment type");
         }
 
-        // Copy common details from parent class
+        // Copy common details from input form data
         newPayment.setPaymentId(payment.getPaymentId());
         newPayment.setOrderId(payment.getOrderId());
         newPayment.setCustomerName(payment.getCustomerName());

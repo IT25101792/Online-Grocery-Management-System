@@ -7,7 +7,6 @@ public class Payment {
     private String phoneNumber;
     private String items;
     private String amount;
-    private String paymentMethod;
     private String paymentDate;
 
     public Payment() {
@@ -59,14 +58,6 @@ public class Payment {
 
     public void setAmount(String amount) {
         this.amount = amount;
-    }
-
-    public String getPaymentMethod() {
-        return paymentMethod;
-    }
-
-    public void setPaymentMethod(String paymentMethod) {
-        this.paymentMethod = paymentMethod;
     }
 
     public String getPaymentDate() {

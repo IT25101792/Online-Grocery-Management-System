@@ -1,4 +1,3 @@
-
 package com.grpproject.store;
 
 import org.springframework.stereotype.Repository;
@@ -15,91 +14,60 @@ import java.util.List;
 @Repository
 public class PaymentFileRepository {
 
-    private final Path filePath =
-            Paths.get("data", "payment.txt");
+    private final Path filePath = Paths.get("data", "payment.txt");
 
     public PaymentFileRepository() {
-
         try {
             Files.createDirectories(filePath.getParent());
-
             if (Files.notExists(filePath)) {
                 Files.createFile(filePath);
             }
-
         } catch (IOException e) {
-            throw new RuntimeException(
-                    "Could not create payment.txt", e);
+            throw new RuntimeException("Could not create payment.txt", e);
         }
     }
 
-    // Read all payment records
     public synchronized List<Payment> findAll() {
-
         List<Payment> payments = new ArrayList<>();
-
         try {
-
-            List<String> lines =
-                    Files.readAllLines(filePath, StandardCharsets.UTF_8);
-
+            List<String> lines = Files.readAllLines(filePath, StandardCharsets.UTF_8);
             for (String line : lines) {
-
                 if (!line.isBlank()) {
-
                     Payment payment = fromLine(line);
-
                     if (payment != null) {
                         payments.add(payment);
                     }
                 }
             }
-
             return payments;
-
         } catch (IOException e) {
-            throw new RuntimeException(
-                    "Could not read payment.txt", e);
+            throw new RuntimeException("Could not read payment.txt", e);
         }
     }
 
-    // Save or update payment
     public synchronized void save(Payment payment) {
-
         List<Payment> payments = findAll();
 
         payments.removeIf(existing ->
                 existing.getPaymentId() != null
-                        && existing.getPaymentId().equals(
-                        payment.getPaymentId()));
+                        && existing.getPaymentId().equals(payment.getPaymentId()));
 
         payments.add(payment);
-
         writeAll(payments);
     }
 
-    // Delete payment using payment ID
     public synchronized void deleteById(String paymentId) {
-
         List<Payment> payments = findAll();
-
-        payments.removeIf(payment ->
-                paymentId.equals(payment.getPaymentId()));
-
+        payments.removeIf(payment -> paymentId.equals(payment.getPaymentId()));
         writeAll(payments);
     }
 
-    // Write all records to text file
     private void writeAll(List<Payment> payments) {
-
         List<String> lines = new ArrayList<>();
-
         for (Payment payment : payments) {
             lines.add(toLine(payment));
         }
-
         try {
-
             Files.write(
                     filePath,
                     lines,
@@ -107,18 +75,13 @@ public class PaymentFileRepository {
                     StandardOpenOption.CREATE,
                     StandardOpenOption.TRUNCATE_EXISTING
             );
-
         } catch (IOException e) {
-            throw new RuntimeException(
-                    "Could not write payment.txt", e);
+            throw new RuntimeException("Could not write payment.txt", e);
         }
     }
 
-    // Convert payment object into text
     private String toLine(Payment payment) {
-
-        String paymentType =
-                payment.getClass().getSimpleName();
+        String paymentType = payment.getClass().getSimpleName();
 
         return formatField(payment.getPaymentId()) + "|"
                 + formatField(payment.getOrderId()) + "|"
@@ -130,11 +93,8 @@ public class PaymentFileRepository {
                 + formatField(payment.getPaymentDate());
     }
 
-    // Convert text into payment object
     private Payment fromLine(String line) {
-
         String[] fields = line.split("\\|", -1);
-
         if (fields.length != 8) {
             return null;
         }
@@ -142,25 +102,20 @@ public class PaymentFileRepository {
         Payment payment;
 
         switch (fields[6]) {
-
             case "CashOnDelivery":
                 payment = new CashOnDelivery();
                 break;
-
             case "CardPayment":
                 payment = new CardPayment();
                 break;
-
             case "OnlineWallet":
                 payment = new OnlineWallet();
                 break;
-
             case "BankTransfer":
                 payment = new BankTransfer();
                 break;
-
             default:
-                return null;
+                payment = new Payment();
         }
 
         payment.setPaymentId(fields[0]);
@@ -174,9 +129,7 @@ public class PaymentFileRepository {
         return payment;
     }
 
-    // Handle null values
     private String formatField(String value) {
-
         return value == null ? "" : value;
     }
 }
