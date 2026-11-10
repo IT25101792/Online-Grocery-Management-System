@@ -1,0 +1,1 @@
+1|Customer|Amal|amal@example.com|test123|Colombo|0771234567
