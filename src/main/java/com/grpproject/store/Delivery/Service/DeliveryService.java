@@ -1,106 +1,71 @@
 package com.grpproject.store.Delivery.Service;
 
 import com.grpproject.store.Delivery.Model.Delivery;
+import com.grpproject.store.Delivery.Model.DeliveryStatus;
 import com.grpproject.store.Delivery.Repository.DeliveryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
 public class DeliveryService {
 
-    private final DeliveryRepository deliveryRepository;
+    private final DeliveryRepository repo;
 
     @Autowired
-    public DeliveryService(DeliveryRepository deliveryRepository) {
-        this.deliveryRepository = deliveryRepository;
+    public DeliveryService(DeliveryRepository repo) {
+        this.repo = repo;
     }
 
-    public boolean createDelivery(Delivery delivery) {
-        if (delivery == null || delivery.getDeliveryID() == null || delivery.getDeliveryID().trim().isEmpty()) {
-            return false;
-        }
+    public Delivery createDelivery(int orderId, String address) {
+        Delivery d = new Delivery();
+        d.setOrderId(orderId);
+        d.setAddress(address);
+        d.setStatus(DeliveryStatus.PENDING);
+        d.setDeliveryDate(new Date());
+        repo.save(d);
+        return d;
+    }
 
-        String trimmedID = delivery.getDeliveryID().trim();
-        delivery.setDeliveryID(trimmedID);
+    public Delivery getDeliveryById(int id) {
+        return repo.findById(id);
+    }
 
-        if (deliveryRepository.getDeliveryById(trimmedID) != null) {
-            return false;
-        }
-
-        if (delivery.getDeliveryStatus() == null || delivery.getDeliveryStatus().trim().isEmpty()) {
-            delivery.setDeliveryStatus("Pending");
-        } else {
-            delivery.setDeliveryStatus(delivery.getDeliveryStatus().trim());
-        }
-
-        if (delivery.getDeliveryFee() < 0) {
-            delivery.setDeliveryFee(0.0);
-        }
-
-        return deliveryRepository.saveDelivery(delivery);
+    public Delivery getDeliveryByOrder(int orderId) {
+        return repo.findByOrderId(orderId);
     }
 
     public List<Delivery> getAllDeliveries() {
-        List<Delivery> deliveries = deliveryRepository.getAllDeliveries();
-        return deliveries != null ? deliveries : new ArrayList<>();
+        return repo.findAll();
     }
 
-    public Delivery getDeliveryById(String deliveryID) {
-        if (deliveryID == null || deliveryID.trim().isEmpty()) {
-            return null;
+    public void assignDriver(int id, String driver) {
+        Delivery d = repo.findById(id);
+        if (d != null) {
+            d.assignDriver(driver);
+            repo.update(d);
         }
-        return deliveryRepository.getDeliveryById(deliveryID.trim());
     }
 
-    public boolean updateDeliveryStatus(String deliveryID, String newStatus) {
-        if (deliveryID == null || newStatus == null || deliveryID.trim().isEmpty() || newStatus.trim().isEmpty()) {
-            return false;
+    public void updateStatus(int id, DeliveryStatus status) {
+        Delivery d = repo.findById(id);
+        if (d != null) {
+            d.setStatus(status);
+            repo.update(d);
         }
-
-        String cleanID = deliveryID.trim();
-        String cleanStatus = newStatus.trim();
-
-        Delivery existingDelivery = deliveryRepository.getDeliveryById(cleanID);
-        if (existingDelivery == null) {
-            return false;
-        }
-
-        return deliveryRepository.updateDeliveryStatus(cleanID, cleanStatus);
     }
 
-    public boolean updateDelivery(Delivery delivery) {
-        if (delivery == null || delivery.getDeliveryID() == null || delivery.getDeliveryID().trim().isEmpty()) {
-            return false;
+    public void reschedule(int id, Date newDate) {
+        Delivery d = repo.findById(id);
+        if (d != null) {
+            d.setDeliveryDate(newDate);
+            repo.update(d);
         }
-
-        String cleanID = delivery.getDeliveryID().trim();
-        delivery.setDeliveryID(cleanID);
-
-        Delivery existingDelivery = deliveryRepository.getDeliveryById(cleanID);
-        if (existingDelivery == null) {
-            return false;
-        }
-
-        if (delivery.getDeliveryStatus() == null || delivery.getDeliveryStatus().trim().isEmpty()) {
-            delivery.setDeliveryStatus(existingDelivery.getDeliveryStatus());
-        } else {
-            delivery.setDeliveryStatus(delivery.getDeliveryStatus().trim());
-        }
-
-        if (delivery.getDeliveryFee() < 0) {
-            delivery.setDeliveryFee(existingDelivery.getDeliveryFee());
-        }
-
-        return deliveryRepository.updateDelivery(delivery);
     }
 
-    public boolean deleteDelivery(String deliveryID) {
-        if (deliveryID == null || deliveryID.trim().isEmpty()) {
-            return false;
-        }
-        return deliveryRepository.deleteDelivery(deliveryID.trim());
+    public void deleteDelivery(int id) {
+        repo.delete(id);
     }
 }

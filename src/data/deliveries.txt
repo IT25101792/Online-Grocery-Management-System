@@ -1,3 +1,0 @@
-DEL001,ORD001,Gaviru ,kottawa,DISPATCHED,500.0
-ORD001,ORD001,Gaviru,kottawa,kamal,0779884567,Pending,0.0
-ORD002,ORD002,Amith,gampaha,nimal,0719443728,Out for Delivery,0.0

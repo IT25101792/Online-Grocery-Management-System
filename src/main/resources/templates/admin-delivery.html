@@ -15,7 +15,6 @@
         :root {
             --brand-green: #10b981;
             --brand-green-dark: #059669;
-            --brand-green-light: #ecfdf5;
         }
 
         body {
@@ -61,10 +60,10 @@
         }
 
         .badge-pending { background-color: #fef3c7 !important; color: #92400e !important; border: 1px solid #fde68a; }
-        .badge-dispatched { background-color: #ffedd5 !important; color: #c2410c !important; border: 1px solid #fed7aa; }
+        .badge-assigned { background-color: #e0e7ff !important; color: #3730a3 !important; border: 1px solid #c7d2fe; }
         .badge-out_for_delivery { background-color: #dbeafe !important; color: #1e40af !important; border: 1px solid #bfdbfe; }
         .badge-delivered { background-color: #d1fae5 !important; color: #065f46 !important; border: 1px solid #a7f3d0; }
-        .badge-cancelled { background-color: #fee2e2 !important; color: #991b1b !important; border: 1px solid #fecaca; }
+        .badge-failed { background-color: #fee2e2 !important; color: #991b1b !important; border: 1px solid #fecaca; }
 
         .table-custom { border-collapse: separate; border-spacing: 0 0.5rem; }
         .table-custom tbody tr { background-color: white; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05); }
@@ -98,14 +97,12 @@
 
 <div class="container my-4">
 
-    <!-- Success Message -->
+    <!-- Flash Notifications -->
     <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
         <i class="fa-solid fa-circle-check me-2"></i>
         <span th:text="${successMessage}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-
-    <!-- Error Message -->
     <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
         <i class="fa-solid fa-circle-exclamation me-2"></i>
         <span th:text="${errorMessage}"></span>
@@ -152,7 +149,7 @@
                     <div>
                         <div class="text-muted small fw-semibold text-uppercase">Pending</div>
                         <div class="fs-4 fw-bold text-warning mt-1"
-                             th:text="${deliveries != null ? #lists.size(deliveries.?[deliveryStatus != null and (deliveryStatus.equalsIgnoreCase('Pending') or deliveryStatus.equalsIgnoreCase('PENDING'))]) : 0}">0</div>
+                             th:text="${deliveries != null ? #lists.size(deliveries.?[status != null and status.name() == 'PENDING']) : 0}">0</div>
                     </div>
                     <div class="icon-box bg-warning-subtle text-warning">
                         <i class="fa-solid fa-clock"></i>
@@ -167,7 +164,7 @@
                     <div>
                         <div class="text-muted small fw-semibold text-uppercase">Out for Delivery</div>
                         <div class="fs-4 fw-bold text-primary mt-1"
-                             th:text="${deliveries != null ? #lists.size(deliveries.?[deliveryStatus != null and (deliveryStatus.equalsIgnoreCase('Out for Delivery') or deliveryStatus.equalsIgnoreCase('OUT_FOR_DELIVERY'))]) : 0}">0</div>
+                             th:text="${deliveries != null ? #lists.size(deliveries.?[status != null and status.name() == 'OUT_FOR_DELIVERY']) : 0}">0</div>
                     </div>
                     <div class="icon-box bg-primary-subtle text-primary">
                         <i class="fa-solid fa-truck-ramp-box"></i>
@@ -182,7 +179,7 @@
                     <div>
                         <div class="text-muted small fw-semibold text-uppercase">Delivered</div>
                         <div class="fs-4 fw-bold text-success mt-1"
-                             th:text="${deliveries != null ? #lists.size(deliveries.?[deliveryStatus != null and (deliveryStatus.equalsIgnoreCase('Delivered') or deliveryStatus.equalsIgnoreCase('DELIVERED'))]) : 0}">0</div>
+                             th:text="${deliveries != null ? #lists.size(deliveries.?[status != null and status.name() == 'DELIVERED']) : 0}">0</div>
                     </div>
                     <div class="icon-box bg-success-subtle text-success">
                         <i class="fa-solid fa-circle-check"></i>
@@ -202,7 +199,7 @@
                 <span class="input-group-text bg-light border-end-0">
                     <i class="fa-solid fa-magnifying-glass text-muted"></i>
                 </span>
-                <input type="text" id="searchInput" class="form-control bg-light border-start-0" placeholder="Search by Order ID, Driver, or Customer..." onkeyup="filterTable()">
+                <input type="text" id="searchInput" class="form-control bg-light border-start-0" placeholder="Search by Delivery ID, Order ID, or Driver..." onkeyup="filterTable()">
             </div>
         </div>
 
@@ -210,51 +207,61 @@
             <table class="table table-custom align-middle" id="deliveriesTable">
                 <thead class="text-secondary small text-uppercase fw-bold">
                 <tr>
+                    <th>Delivery ID</th>
                     <th>Order ID</th>
-                    <th>Customer</th>
                     <th>Address</th>
                     <th>Driver Name</th>
-                    <th>Driver Contact</th>
                     <th>Status</th>
                     <th>Update Status</th>
+                    <th>Assign Driver</th>
                     <th class="text-center">Action</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="delivery : ${deliveries}">
-                    <td class="fw-bold text-dark" th:text="${delivery.orderID}">ORD-1001</td>
-                    <td class="fw-semibold" th:text="${delivery.customerName}">John Doe</td>
-                    <td class="text-muted small" th:text="${delivery.deliveryAddress}">123 Main St, City</td>
+                    <td class="fw-bold text-dark" th:text="${delivery.deliveryId}">1</td>
+                    <td class="fw-semibold text-secondary" th:text="${delivery.orderId}">1001</td>
+                    <td class="text-muted small" th:text="${delivery.address}">123 Main St</td>
                     <td class="fw-medium" th:text="${delivery.driverName}">Unassigned</td>
-                    <td class="text-muted small" th:text="${delivery.driverContact}">N/A</td>
                     <td>
-                        <span th:class="'badge px-3 py-2 rounded-pill badge-' + ${#strings.toLowerCase(#strings.replace(delivery.deliveryStatus, ' ', '_'))}"
-                              th:text="${delivery.deliveryStatus}">
-                            Pending
+                        <span th:class="'badge px-3 py-2 rounded-pill badge-' + ${#strings.toLowerCase(delivery.status.name())}"
+                              th:text="${delivery.status.name()}">
+                            PENDING
                         </span>
                     </td>
                     <td>
                         <form th:action="@{/admin/deliveries/update-status}" method="post" class="d-flex align-items-center gap-1">
-                            <input type="hidden" name="deliveryID" th:value="${delivery.deliveryID}" />
-                            <select name="deliveryStatus" class="form-select form-select-sm form-select-sm-custom border-secondary-subtle">
-                                <option value="Pending" th:selected="${delivery.deliveryStatus != null && delivery.deliveryStatus.equalsIgnoreCase('Pending')}">Pending</option>
-                                <option value="Dispatched" th:selected="${delivery.deliveryStatus != null && delivery.deliveryStatus.equalsIgnoreCase('Dispatched')}">Dispatched</option>
-                                <option value="Out for Delivery" th:selected="${delivery.deliveryStatus != null && delivery.deliveryStatus.equalsIgnoreCase('Out for Delivery')}">Out for Delivery</option>
-                                <option value="Delivered" th:selected="${delivery.deliveryStatus != null && delivery.deliveryStatus.equalsIgnoreCase('Delivered')}">Delivered</option>
-                                <option value="Cancelled" th:selected="${delivery.deliveryStatus != null && delivery.deliveryStatus.equalsIgnoreCase('Cancelled')}">Cancelled</option>
+                            <input type="hidden" name="deliveryId" th:value="${delivery.deliveryId}" />
+                            <select name="status" class="form-select form-select-sm form-select-sm-custom border-secondary-subtle">
+                                <option value="PENDING" th:selected="${delivery.status.name() == 'PENDING'}">PENDING</option>
+                                <option value="ASSIGNED" th:selected="${delivery.status.name() == 'ASSIGNED'}">ASSIGNED</option>
+                                <option value="OUT_FOR_DELIVERY" th:selected="${delivery.status.name() == 'OUT_FOR_DELIVERY'}">OUT_FOR_DELIVERY</option>
+                                <option value="DELIVERED" th:selected="${delivery.status.name() == 'DELIVERED'}">DELIVERED</option>
+                                <option value="FAILED" th:selected="${delivery.status.name() == 'FAILED'}">FAILED</option>
                             </select>
                             <button type="submit" class="btn btn-sm btn-light border text-success fw-bold" title="Save Status">
                                 <i class="fa-solid fa-floppy-disk"></i>
                             </button>
                         </form>
                     </td>
+                    <td>
+                        <form th:action="@{/admin/deliveries/assign-driver}" method="post" class="d-flex align-items-center gap-1">
+                            <input type="hidden" name="deliveryId" th:value="${delivery.deliveryId}" />
+                            <input type="text" name="driver" class="form-control form-control-sm" placeholder="Driver Name" required th:value="${delivery.driverName != 'Unassigned' ? delivery.driverName : ''}">
+                            <button type="submit" class="btn btn-sm btn-light border text-primary fw-bold" title="Assign Driver">
+                                <i class="fa-solid fa-user-check"></i>
+                            </button>
+                        </form>
+                    </td>
                     <td class="text-center">
-                        <a th:href="@{/admin/deliveries/delete/{id}(id=${delivery.deliveryID})}"
-                           class="btn btn-sm btn-outline-danger border-0 rounded-circle p-2"
-                           onclick="return confirm('Are you sure you want to delete this delivery record?');"
-                           title="Delete Delivery">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </a>
+                        <form th:action="@{/admin/deliveries/delete/{id}(id=${delivery.deliveryId})}" method="post" class="d-inline">
+                            <button type="submit"
+                                    class="btn btn-sm btn-outline-danger border-0 rounded-circle p-2"
+                                    onclick="return confirm('Are you sure you want to delete this delivery record?');"
+                                    title="Delete Delivery">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </form>
                     </td>
                 </tr>
                 <tr th:if="${deliveries == null || deliveries.isEmpty()}">
@@ -282,40 +289,17 @@
             <form th:action="@{/admin/deliveries/add}" method="post">
                 <div class="modal-body p-4">
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Order ID / Delivery ID</label>
-                        <input type="text" name="orderID" class="form-control" placeholder="e.g. ORD-1001" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Customer Name</label>
-                        <input type="text" name="customerName" class="form-control" placeholder="e.g. John Doe" required>
+                        <label class="form-label fw-semibold">Order ID</label>
+                        <input type="number" name="orderId" class="form-control" placeholder="e.g. 1001" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Delivery Address</label>
-                        <textarea name="deliveryAddress" class="form-control" rows="2" placeholder="e.g. 123 Main Street, City" required></textarea>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-semibold">Driver Name</label>
-                            <input type="text" name="driverName" class="form-control" placeholder="e.g. Kamal Perera">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-semibold">Driver Contact</label>
-                            <input type="text" name="driverContact" class="form-control" placeholder="e.g. 0771234567">
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Initial Status</label>
-                        <select name="deliveryStatus" class="form-select">
-                            <option value="Pending" selected>Pending</option>
-                            <option value="Dispatched">Dispatched</option>
-                            <option value="Out for Delivery">Out for Delivery</option>
-                            <option value="Delivered">Delivered</option>
-                        </select>
+                        <textarea name="address" class="form-control" rows="2" placeholder="e.g. 123 Main Street, City" required></textarea>
                     </div>
                 </div>
                 <div class="modal-footer bg-light border-0">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-brand px-4">Save Delivery</button>
+                    <button type="submit" class="btn btn-brand px-4">Create Delivery</button>
                 </div>
             </form>
         </div>
