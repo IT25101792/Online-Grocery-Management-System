@@ -8,10 +8,7 @@ public class StoreApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(StoreApplication.class, args);
-
-
-        System.out.println("hello");}
-
-
+		System.out.println("Online Grocery Management System running at http://localhost:8080");
+	}
 
 }

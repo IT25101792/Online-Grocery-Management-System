@@ -1,0 +1,4 @@
+PERISHABLE|1|Fresh Milk 1L|Dairy|450.0|30|10|2026-10-20
+PERISHABLE|2|Tomatoes 1kg|Vegetables|320.0|50|10|2026-10-12
+NON_PERISHABLE|3|Basmati Rice 5kg|Grains|1800.0|100|20|Bag
+NON_PERISHABLE|4|Canned Tuna|Canned Food|650.0|75|15|Can
