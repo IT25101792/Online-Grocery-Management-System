@@ -3,18 +3,12 @@ package com.grpproject.store;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.grpproject.store", "com.grocery.cartorder"})
 public class StoreApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(StoreApplication.class, args);
-
-
-        System.out.println("hello");}
-
-
-
-
-
+		System.out.println("Online Grocery Management System running at http://localhost:8080");
+	}
 
 }

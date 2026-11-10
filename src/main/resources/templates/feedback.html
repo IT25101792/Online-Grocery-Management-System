@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback & Reviews | FreshCart</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .feedback-wrap{max-width:1100px;margin:35px auto;padding:0 18px;color:#253047}
+        .feedback-hero{background:#eff8f1;border-radius:18px;padding:28px;margin-bottom:24px}
+        .feedback-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+        .feedback-panel{background:#fff;border:1px solid #e4e9e5;border-radius:15px;padding:22px;margin:18px 0;box-shadow:0 5px 18px rgba(28,55,35,.05)}
+        .feedback-panel h2,.feedback-panel h3{margin-top:0}
+        .feedback-form label{display:block;font-weight:600;margin:12px 0 6px}
+        .feedback-form input,.feedback-form select,.feedback-form textarea{width:100%;padding:11px;border:1px solid #ccd6cf;border-radius:8px;font:inherit;box-sizing:border-box}
+        .feedback-form textarea{min-height:85px;resize:vertical}
+        .feedback-btn{border:0;border-radius:8px;background:#287b46;color:white;padding:11px 17px;font-weight:600;cursor:pointer;margin-top:12px}
+        .feedback-btn.secondary{background:#425466}.feedback-btn.danger{background:#a53d3d}
+        .feedback-msg{padding:12px 15px;border-radius:8px;margin:12px 0}.feedback-success{background:#e8f6ec;color:#205c32}.feedback-error{background:#fff0ed;color:#8c2e24}
+        .feedback-record{border-top:1px solid #e7ece8;padding:16px 0}.feedback-meta{color:#617166;font-size:.9rem}.feedback-pill{display:inline-block;border-radius:20px;padding:4px 9px;background:#edf1ee;font-size:.8rem}
+        .feedback-pill.APPROVED{background:#e4f5e8;color:#23663a}.feedback-pill.REJECTED{background:#fae8e7;color:#8e302b}.feedback-actions{display:flex;gap:8px;flex-wrap:wrap}.feedback-actions form{flex:1;min-width:190px}
+        .feedback-small{font-size:.9rem;color:#637167}.feedback-nav{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px}.feedback-nav a{color:#286b40;font-weight:600;text-decoration:none}
+    </style>
+</head>
+<body>
+<header class="main-header">
+    <div class="container header-container">
+        <a href="/" class="brand">
+            <div class="brand-icon">🛒</div>
+            <div class="brand-text"><span class="brand-name">FreshCart</span><span class="brand-tagline">Fresh • Fast • Easy</span></div>
+        </a>
+        <nav class="nav-links">
+            <a href="/" class="nav-item">🏠 Products</a>
+            <a href="/orders" class="nav-item">📦 My Orders</a>
+            <a href="/cart" class="nav-item">🛒 Cart</a>
+            <a href="/feedback" class="nav-item">⭐ Feedback</a>
+        </nav>
+    </div>
+</header>
+
+<main class="feedback-wrap">
+    <section class="feedback-hero">
+        <span class="feedback-small">CUSTOMER EXPERIENCE</span>
+        <h1>Feedback & Reviews</h1>
+        <p>Share your experience with a product or tell us how we did with your order.</p>
+        <div class="feedback-nav">
+            <a href="/feedback">Submit feedback</a>
+            <a href="/feedback/mine?customerId=U001">View my feedback (demo customer U001)</a>
+        </div>
+    </section>
+
+    <div th:if="${successMessage}" class="feedback-msg feedback-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="feedback-msg feedback-error" th:text="${errorMessage}"></div>
+
+    <div class="feedback-grid">
+        <section class="feedback-panel">
+            <h2>⭐ Review a product</h2>
+            <p class="feedback-small">You can review a product only if it appears in one of your orders.</p>
+            <form class="feedback-form" action="/feedback/submit-review" method="post">
+                <label for="reviewCustomerId">Customer ID</label>
+                <input id="reviewCustomerId" name="customerId" required placeholder="Example: U001" th:value="${selectedCustomerId}">
+
+                <label for="reviewProductId">Product ID</label>
+                <select id="reviewProductId" name="productId" required>
+                    <option value="">Select a product</option>
+                    <option th:each="productId : ${productIds}" th:value="${productId}" th:text="${productId}" th:selected="${productId == selectedProductId}"></option>
+                </select>
+
+                <label for="reviewTitle">Review title</label>
+                <input id="reviewTitle" name="title" maxlength="80" placeholder="Example: Fresh and good quality">
+
+                <label for="rating">Rating</label>
+                <select id="rating" name="rating" required>
+                    <option value="">Choose a rating</option>
+                    <option value="5">5 - Excellent</option>
+                    <option value="4">4 - Good</option>
+                    <option value="3">3 - Average</option>
+                    <option value="2">2 - Poor</option>
+                    <option value="1">1 - Very poor</option>
+                </select>
+
+                <label for="reviewComment">Comment</label>
+                <textarea id="reviewComment" name="comment" required maxlength="1000" placeholder="Write about your experience..."></textarea>
+                <button class="feedback-btn" type="submit">Submit product review</button>
+            </form>
+        </section>
+
+        <section class="feedback-panel">
+            <h2>🚚 Give service feedback</h2>
+            <p class="feedback-small">Choose an order belonging to the customer ID you enter.</p>
+            <form class="feedback-form" action="/feedback/submit-service-feedback" method="post">
+                <label for="serviceCustomerId">Customer ID</label>
+                <input id="serviceCustomerId" name="customerId" required placeholder="Example: U001" th:value="${selectedCustomerId}">
+
+                <label for="orderId">Order ID</label>
+                <select id="orderId" name="orderId" required>
+                    <option value="">Select an order</option>
+                    <option th:each="order : ${orders}" th:value="${order.orderId}" th:text="${order.orderId + ' - Customer ' + order.customerId}"></option>
+                </select>
+
+                <label for="category">Category</label>
+                <select id="category" name="category">
+                    <option value="GENERAL">General</option>
+                    <option value="DELIVERY">Delivery</option>
+                    <option value="PACKAGING">Packaging</option>
+                    <option value="CUSTOMER_SERVICE">Customer service</option>
+                </select>
+
+                <label for="serviceComment">Comment</label>
+                <textarea id="serviceComment" name="comment" required maxlength="1000" placeholder="Tell us about your order experience..."></textarea>
+                <button class="feedback-btn" type="submit">Submit service feedback</button>
+            </form>
+        </section>
+    </div>
+
+    <section class="feedback-panel">
+        <h2>🔎 View approved product reviews</h2>
+        <form class="feedback-form" action="/feedback/reviews" method="get">
+            <label for="viewProductId">Product ID</label>
+            <select id="viewProductId" name="productId" required>
+                <option value="">Select a product</option>
+                <option th:each="productId : ${productIds}" th:value="${productId}" th:text="${productId}" th:selected="${productId == selectedProductId}"></option>
+            </select>
+            <button class="feedback-btn secondary" type="submit">View reviews</button>
+        </form>
+        <div th:if="${selectedProductId != ''}">
+            <h3 th:text="${'Product ' + selectedProductId}">Product</h3>
+            <p><strong>Average rating:</strong> <span th:text="${#numbers.formatDecimal(averageRating, 1, 2)}">0.00</span> / 5</p>
+            <p th:if="${#lists.isEmpty(visibleReviews)}" class="feedback-small">No approved reviews yet.</p>
+            <article class="feedback-record" th:each="review : ${visibleReviews}">
+                <strong th:text="${review.title}">Review title</strong>
+                <span class="feedback-pill APPROVED">APPROVED</span>
+                <p th:text="${review.comment}">Review comment</p>
+                <p class="feedback-meta" th:text="${'Rating: ' + review.rating + '/5 | Customer: ' + review.customerId + ' | ' + review.createdDate}"></p>
+                <p th:if="${!#strings.isEmpty(review.adminReply)}"><strong>Admin reply:</strong> <span th:text="${review.adminReply}"></span></p>
+            </article>
+        </div>
+    </section>
+
+    <section class="feedback-panel">
+        <h2>👤 My feedback</h2>
+        <form class="feedback-form" action="/feedback/mine" method="get">
+            <label for="myCustomerId">Customer ID</label>
+            <input id="myCustomerId" name="customerId" required placeholder="Enter your customer ID" th:value="${selectedCustomerId}">
+            <button class="feedback-btn secondary" type="submit">Find my feedback</button>
+        </form>
+        <p th:if="${selectedCustomerId != '' and #lists.isEmpty(myFeedback)}" class="feedback-small">No feedback found for this customer.</p>
+        <article class="feedback-record" th:each="item : ${myFeedback}">
+            <div class="feedback-meta">
+                <strong th:text="${'Feedback #' + item.feedbackId}">Feedback #1</strong>
+                <span class="feedback-pill" th:classappend="${item.status}" th:text="${item.status}">PENDING</span>
+            </div>
+            <p th:text="${item.comment}">Comment</p>
+            <p class="feedback-meta" th:text="${'Created: ' + item.createdDate}"></p>
+            <p th:if="${!#strings.isEmpty(item.adminReply)}"><strong>Admin reply:</strong> <span th:text="${item.adminReply}"></span></p>
+            <div class="feedback-actions">
+                <form class="feedback-form" th:action="@{/feedback/edit/{id}(id=${item.feedbackId})}" method="post">
+                    <input type="hidden" name="customerId" th:value="${selectedCustomerId}">
+                    <label>Update comment</label>
+                    <textarea name="comment" required th:text="${item.comment}"></textarea>
+                    <label>New rating (product reviews only)</label>
+                    <input type="number" name="rating" min="1" max="5" value="5">
+                    <button class="feedback-btn secondary" type="submit">Update feedback</button>
+                </form>
+                <form th:action="@{/feedback/delete/{id}(id=${item.feedbackId})}" method="post">
+                    <input type="hidden" name="customerId" th:value="${selectedCustomerId}">
+                    <button class="feedback-btn danger" type="submit">Delete feedback</button>
+                </form>
+            </div>
+        </article>
+    </section>
+
+    <section class="feedback-panel">
+        <h2>🛠 Admin moderation</h2>
+        <p class="feedback-small">Demo admin tools. In the final system, restrict these actions to authenticated admins.</p>
+        <p th:if="${#lists.isEmpty(allFeedback)}" class="feedback-small">There are no feedback records yet.</p>
+        <article class="feedback-record" th:each="item : ${allFeedback}">
+            <div class="feedback-meta">
+                <strong th:text="${'Feedback #' + item.feedbackId + ' | Customer ' + item.customerId}">Feedback record</strong>
+                <span class="feedback-pill" th:classappend="${item.status}" th:text="${item.status}">PENDING</span>
+            </div>
+            <p th:text="${item.comment}">Comment</p>
+            <p class="feedback-meta" th:text="${item.createdDate}"></p>
+            <div class="feedback-actions">
+                <form th:action="@{/feedback/moderate/{id}(id=${item.feedbackId})}" method="post">
+                    <label>Moderation status</label>
+                    <select name="status">
+                        <option value="PENDING" th:selected="${item.status.name() == 'PENDING'}">PENDING</option>
+                        <option value="APPROVED" th:selected="${item.status.name() == 'APPROVED'}">APPROVED</option>
+                        <option value="REJECTED" th:selected="${item.status.name() == 'REJECTED'}">REJECTED</option>
+                    </select>
+                    <button class="feedback-btn secondary" type="submit">Save status</button>
+                </form>
+                <form th:action="@{/feedback/reply/{id}(id=${item.feedbackId})}" method="post">
+                    <label>Admin reply</label>
+                    <textarea name="reply" required placeholder="Write a reply..."></textarea>
+                    <button class="feedback-btn" type="submit">Send reply</button>
+                </form>
+            </div>
+        </article>
+    </section>
+</main>
+</body>
+</html>
